@@ -11,6 +11,7 @@
 .control-buttons {
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
 .control-btn {
@@ -89,6 +90,58 @@
 .prev-btn .btn-icon,
 .next-btn .btn-icon {
   font-size: 10px;
+}
+
+.speed-control {
+  position: relative;
+}
+
+.speed-btn {
+  min-width: 70px;
+  justify-content: center;
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  color: #a0aec0;
+  margin-left: 4px;
+}
+
+.speed-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  background: #2d3748;
+  border: 1px solid #4a5568;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  z-index: 100;
+}
+
+.speed-option {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.speed-option:hover {
+  background: #4a5568;
+}
+
+.speed-option.active {
+  background: #ffa116;
+  color: #1a1a2e;
+  font-weight: 500;
 }
 
 .step-info {

@@ -1,7 +1,11 @@
 import { AlgorithmStep, VisualizationState, VariableState } from '../types';
 
-// 算法的Java代码（用于展示）
-export const algorithmCode = `class Solution {
+// 支持的编程语言
+export type CodeLanguage = 'java' | 'python' | 'golang' | 'javascript';
+
+// 各语言的算法代码
+export const algorithmCodes: Record<CodeLanguage, string> = {
+  java: `class Solution {
     public int longestConsecutive(int[] nums) {
         Set<Integer> num_set = new HashSet<Integer>();
         for (int num : nums) {
@@ -26,24 +30,140 @@ export const algorithmCode = `class Solution {
 
         return longestStreak;
     }
-}`;
-
-// 代码行号映射（从1开始）
-export const codeLineMapping = {
-  createHashSet: 3,
-  addToHashSet: 4,
-  addToHashSetLoop: 5,
-  initLongestStreak: 8,
-  forEachNum: 10,
-  checkSequenceStart: 11,
-  initCurrentNum: 12,
-  initCurrentStreak: 13,
-  whileLoop: 15,
-  incrementCurrentNum: 16,
-  incrementCurrentStreak: 17,
-  updateLongestStreak: 20,
-  returnResult: 24,
+}`,
+  python: `class Solution:
+    def longestConsecutive(self, nums: List[int]) -> int:
+        num_set = set(nums)
+        
+        longest_streak = 0
+        
+        for num in num_set:
+            if num - 1 not in num_set:
+                current_num = num
+                current_streak = 1
+                
+                while current_num + 1 in num_set:
+                    current_num += 1
+                    current_streak += 1
+                
+                longest_streak = max(longest_streak, current_streak)
+        
+        return longest_streak`,
+  golang: `func longestConsecutive(nums []int) int {
+    numSet := make(map[int]bool)
+    for _, num := range nums {
+        numSet[num] = true
+    }
+    
+    longestStreak := 0
+    
+    for num := range numSet {
+        if !numSet[num-1] {
+            currentNum := num
+            currentStreak := 1
+            
+            for numSet[currentNum+1] {
+                currentNum++
+                currentStreak++
+            }
+            
+            if currentStreak > longestStreak {
+                longestStreak = currentStreak
+            }
+        }
+    }
+    
+    return longestStreak
+}`,
+  javascript: `var longestConsecutive = function(nums) {
+    const numSet = new Set(nums);
+    let longestStreak = 0;
+    
+    for (const num of numSet) {
+        if (!numSet.has(num - 1)) {
+            let currentNum = num;
+            let currentStreak = 1;
+            
+            while (numSet.has(currentNum + 1)) {
+                currentNum++;
+                currentStreak++;
+            }
+            
+            longestStreak = Math.max(longestStreak, currentStreak);
+        }
+    }
+    
+    return longestStreak;
+};`
 };
+
+// 各语言的代码行号映射
+export const codeLineMappings: Record<CodeLanguage, Record<string, number>> = {
+  java: {
+    createHashSet: 3,
+    addToHashSet: 4,
+    addToHashSetLoop: 5,
+    initLongestStreak: 8,
+    forEachNum: 10,
+    checkSequenceStart: 11,
+    initCurrentNum: 12,
+    initCurrentStreak: 13,
+    whileLoop: 15,
+    incrementCurrentNum: 16,
+    incrementCurrentStreak: 17,
+    updateLongestStreak: 20,
+    returnResult: 24,
+  },
+  python: {
+    createHashSet: 3,
+    addToHashSet: 3,
+    addToHashSetLoop: 3,
+    initLongestStreak: 5,
+    forEachNum: 7,
+    checkSequenceStart: 8,
+    initCurrentNum: 9,
+    initCurrentStreak: 10,
+    whileLoop: 12,
+    incrementCurrentNum: 13,
+    incrementCurrentStreak: 14,
+    updateLongestStreak: 16,
+    returnResult: 18,
+  },
+  golang: {
+    createHashSet: 2,
+    addToHashSet: 3,
+    addToHashSetLoop: 4,
+    initLongestStreak: 7,
+    forEachNum: 9,
+    checkSequenceStart: 10,
+    initCurrentNum: 11,
+    initCurrentStreak: 12,
+    whileLoop: 14,
+    incrementCurrentNum: 15,
+    incrementCurrentStreak: 16,
+    updateLongestStreak: 19,
+    returnResult: 24,
+  },
+  javascript: {
+    createHashSet: 2,
+    addToHashSet: 2,
+    addToHashSetLoop: 2,
+    initLongestStreak: 3,
+    forEachNum: 5,
+    checkSequenceStart: 6,
+    initCurrentNum: 7,
+    initCurrentStreak: 8,
+    whileLoop: 10,
+    incrementCurrentNum: 11,
+    incrementCurrentStreak: 12,
+    updateLongestStreak: 15,
+    returnResult: 18,
+  }
+};
+
+// 兼容旧代码
+export const algorithmCode = algorithmCodes.java;
+export const codeLineMapping = codeLineMappings.java;
 
 // 生成算法执行步骤
 export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {

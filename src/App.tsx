@@ -6,18 +6,72 @@ import { Canvas } from './components/Canvas';
 import { ControlPanel } from './components/ControlPanel';
 import { ProgressBar } from './components/ProgressBar';
 import { WechatFloat } from './components/WechatFloat';
-import { generateAlgorithmSteps, sampleData } from './algorithm/longestConsecutive';
+import { generateAlgorithmSteps, sampleData, CodeLanguage } from './algorithm/longestConsecutive';
 import { AlgorithmStep, PlayState } from './types';
 import './App.css';
 
-const PLAY_INTERVAL = 1000; // 播放间隔（毫秒）
+const DB_NAME = 'algorithm-visualizer';
+const STORE_NAME = 'settings';
+const SPEED_KEY = 'play-speed';
+const DEFAULT_SPEED = 1;
+const DB_VERSION = 2;
+
+async function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+      if (!db.objectStoreNames.contains('github-cache')) {
+        db.createObjectStore('github-cache');
+      }
+    };
+  });
+}
+
+async function getSavedSpeed(): Promise<number> {
+  try {
+    const db = await openDB();
+    return new Promise((resolve) => {
+      const transaction = db.transaction(STORE_NAME, 'readonly');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.get(SPEED_KEY);
+      request.onsuccess = () => resolve(request.result || DEFAULT_SPEED);
+      request.onerror = () => resolve(DEFAULT_SPEED);
+    });
+  } catch {
+    return DEFAULT_SPEED;
+  }
+}
+
+async function saveSpeed(speed: number): Promise<void> {
+  try {
+    const db = await openDB();
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    store.put(speed, SPEED_KEY);
+  } catch {
+    // 忽略保存错误
+  }
+}
 
 function App() {
   const [inputData, setInputData] = useState<number[]>(sampleData[0].data);
   const [steps, setSteps] = useState<AlgorithmStep[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [playState, setPlayState] = useState<PlayState>('stopped');
+  const [playSpeed, setPlaySpeed] = useState(DEFAULT_SPEED);
+  const [codeLanguage, setCodeLanguage] = useState<CodeLanguage>('java');
   const playIntervalRef = useRef<number | null>(null);
+
+  // 加载保存的播放速度
+  useEffect(() => {
+    getSavedSpeed().then(setPlaySpeed);
+  }, []);
 
   // 生成算法步骤
   useEffect(() => {
@@ -30,6 +84,7 @@ function App() {
   // 播放控制
   useEffect(() => {
     if (playState === 'playing') {
+      const interval = 1000 / playSpeed;
       playIntervalRef.current = window.setInterval(() => {
         setCurrentStep(prev => {
           if (prev >= steps.length - 1) {
@@ -38,7 +93,7 @@ function App() {
           }
           return prev + 1;
         });
-      }, PLAY_INTERVAL);
+      }, interval);
     } else {
       if (playIntervalRef.current) {
         clearInterval(playIntervalRef.current);
@@ -51,7 +106,7 @@ function App() {
         clearInterval(playIntervalRef.current);
       }
     };
-  }, [playState, steps.length]);
+  }, [playState, steps.length, playSpeed]);
 
   const handleDataChange = useCallback((data: number[]) => {
     setInputData(data);
@@ -68,7 +123,6 @@ function App() {
   const handlePlayPause = useCallback(() => {
     setPlayState(prev => {
       if (prev === 'playing') return 'paused';
-      // 如果已经到最后一步，从头开始
       if (currentStep >= steps.length - 1) {
         setCurrentStep(0);
       }
@@ -83,6 +137,15 @@ function App() {
 
   const handleSeek = useCallback((step: number) => {
     setCurrentStep(step);
+  }, []);
+
+  const handleSpeedChange = useCallback((speed: number) => {
+    setPlaySpeed(speed);
+    saveSpeed(speed);
+  }, []);
+
+  const handleLanguageChange = useCallback((lang: CodeLanguage) => {
+    setCodeLanguage(lang);
   }, []);
 
   const currentStepData = steps[currentStep] || {
@@ -109,6 +172,8 @@ function App() {
           <CodePanel 
             currentLine={currentStepData.lineNumber} 
             variables={currentStepData.variables}
+            language={codeLanguage}
+            onLanguageChange={handleLanguageChange}
           />
         </div>
         <div className="canvas-section">
@@ -123,10 +188,12 @@ function App() {
         currentStep={currentStep}
         totalSteps={steps.length}
         playState={playState}
+        playSpeed={playSpeed}
         onPrevious={handlePrevious}
         onNext={handleNext}
         onPlayPause={handlePlayPause}
         onReset={handleReset}
+        onSpeedChange={handleSpeedChange}
       />
       
       <ProgressBar

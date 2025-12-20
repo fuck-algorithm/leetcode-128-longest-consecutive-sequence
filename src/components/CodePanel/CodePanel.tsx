@@ -1,16 +1,34 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-java';
-import { algorithmCode } from '../../algorithm/longestConsecutive';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-go';
+import 'prismjs/components/prism-javascript';
+import { algorithmCodes, codeLineMappings, CodeLanguage } from '../../algorithm/longestConsecutive';
 import { VariableState } from '../../types';
 import './CodePanel.css';
 
 interface CodePanelProps {
   currentLine: number;
   variables: VariableState;
+  language: CodeLanguage;
+  onLanguageChange: (lang: CodeLanguage) => void;
 }
 
-// 代码行与变量的映射关系
+const languageNames: Record<CodeLanguage, string> = {
+  java: 'Java',
+  python: 'Python',
+  golang: 'Go',
+  javascript: 'JavaScript'
+};
+
+const prismLanguages: Record<CodeLanguage, string> = {
+  java: 'java',
+  python: 'python',
+  golang: 'go',
+  javascript: 'javascript'
+};
+
 const lineVariableMapping: Record<number, (keyof VariableState)[]> = {
   3: ['num_set'],
   5: ['num', 'num_set'],
@@ -26,16 +44,16 @@ const lineVariableMapping: Record<number, (keyof VariableState)[]> = {
   24: ['longestStreak'],
 };
 
-export function CodePanel({ currentLine, variables }: CodePanelProps) {
+export function CodePanel({ currentLine, variables, language, onLanguageChange }: CodePanelProps) {
   const codeRef = useRef<HTMLPreElement>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (codeRef.current) {
       Prism.highlightElement(codeRef.current);
     }
-  }, []);
+  }, [language]);
 
-  // 格式化变量值
   const formatVariableValue = (key: keyof VariableState, value: unknown): string => {
     if (value === undefined) return '';
     if (key === 'num_set' && Array.isArray(value)) {
@@ -44,11 +62,9 @@ export function CodePanel({ currentLine, variables }: CodePanelProps) {
     return String(value);
   };
 
-  // 获取当前行的变量显示
   const getLineVariables = (lineNum: number): string => {
     const varKeys = lineVariableMapping[lineNum];
     if (!varKeys) return '';
-    
     const parts: string[] = [];
     for (const key of varKeys) {
       const value = variables[key];
@@ -59,20 +75,57 @@ export function CodePanel({ currentLine, variables }: CodePanelProps) {
     return parts.join(', ');
   };
 
-  const codeLines = algorithmCode.split('\n');
+  const codeLines = algorithmCodes[language].split('\n');
+  const lineMapping = codeLineMappings[language];
+
+  const getMappedLine = (javaLine: number): number => {
+    for (const [key, value] of Object.entries(codeLineMappings.java)) {
+      if (value === javaLine) {
+        return lineMapping[key as keyof typeof lineMapping] || javaLine;
+      }
+    }
+    return javaLine;
+  };
+
+  const mappedCurrentLine = getMappedLine(currentLine);
 
   return (
     <div className="code-panel">
       <div className="code-header">
-        <span className="code-title">Java 代码</span>
+        <div className="language-selector">
+          <button 
+            className="language-btn"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            type="button"
+          >
+            <span>{languageNames[language]}</span>
+            <span className="dropdown-arrow">▼</span>
+          </button>
+          {isDropdownOpen && (
+            <div className="language-dropdown">
+              {(Object.keys(languageNames) as CodeLanguage[]).map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  className={`dropdown-item ${lang === language ? 'active' : ''}`}
+                  onClick={() => {
+                    onLanguageChange(lang);
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  {languageNames[lang]}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <span className="code-badge">Debug 模式</span>
       </div>
       <div className="code-container">
         {codeLines.map((line, index) => {
           const lineNum = index + 1;
-          const isHighlighted = lineNum === currentLine;
-          const lineVars = isHighlighted ? getLineVariables(lineNum) : '';
-          
+          const isHighlighted = lineNum === mappedCurrentLine;
+          const lineVars = isHighlighted ? getLineVariables(currentLine) : '';
           return (
             <div 
               key={index} 
@@ -83,7 +136,7 @@ export function CodePanel({ currentLine, variables }: CodePanelProps) {
                 ref={index === 0 ? codeRef : undefined}
                 className="line-content"
               >
-                <code className="language-java">{line || ' '}</code>
+                <code className={`language-${prismLanguages[language]}`}>{line || ' '}</code>
               </pre>
               {lineVars && (
                 <span className="line-variables">{lineVars}</span>

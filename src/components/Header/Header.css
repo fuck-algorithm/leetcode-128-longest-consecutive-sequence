@@ -20,6 +20,12 @@
   text-decoration: underline;
 }
 
+.github-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .github-link {
   color: #a0aec0;
   transition: color 0.2s ease;
@@ -29,4 +35,21 @@
 
 .github-link:hover {
   color: #ffffff;
+}
+
+.star-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #ffa116;
+  font-size: 14px;
+  font-weight: 500;
+  background: rgba(255, 161, 22, 0.1);
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 161, 22, 0.3);
+}
+
+.star-count svg {
+  color: #ffa116;
 }
