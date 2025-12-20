@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: './',
+  base: '/leetcode-128-longest-consecutive-sequence/',
   server: {
-    port: 20747,
+    port: 36042,
     strictPort: true
   },
   build: {
