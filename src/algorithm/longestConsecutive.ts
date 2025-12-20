@@ -1,0 +1,304 @@
+import { AlgorithmStep, VisualizationState, VariableState } from '../types';
+
+// 算法的Java代码（用于展示）
+export const algorithmCode = `class Solution {
+    public int longestConsecutive(int[] nums) {
+        Set<Integer> num_set = new HashSet<Integer>();
+        for (int num : nums) {
+            num_set.add(num);
+        }
+
+        int longestStreak = 0;
+
+        for (int num : num_set) {
+            if (!num_set.contains(num - 1)) {
+                int currentNum = num;
+                int currentStreak = 1;
+
+                while (num_set.contains(currentNum + 1)) {
+                    currentNum += 1;
+                    currentStreak += 1;
+                }
+
+                longestStreak = Math.max(longestStreak, currentStreak);
+            }
+        }
+
+        return longestStreak;
+    }
+}`;
+
+// 代码行号映射（从1开始）
+export const codeLineMapping = {
+  createHashSet: 3,
+  addToHashSet: 4,
+  addToHashSetLoop: 5,
+  initLongestStreak: 8,
+  forEachNum: 10,
+  checkSequenceStart: 11,
+  initCurrentNum: 12,
+  initCurrentStreak: 13,
+  whileLoop: 15,
+  incrementCurrentNum: 16,
+  incrementCurrentStreak: 17,
+  updateLongestStreak: 20,
+  returnResult: 24,
+};
+
+// 生成算法执行步骤
+export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
+  const steps: AlgorithmStep[] = [];
+  
+  const createStep = (
+    lineNumber: number,
+    variables: VariableState,
+    visualization: VisualizationState,
+    description: string
+  ): AlgorithmStep => ({
+    lineNumber,
+    variables: { ...variables },
+    visualization: { ...visualization },
+    description,
+  });
+
+  // 初始可视化状态
+  const baseVisualization: VisualizationState = {
+    highlightedNumbers: [],
+    currentSequence: [],
+    longestSequence: [],
+    isSequenceStart: false,
+    hashSetNumbers: [],
+    originalArray: [...nums],
+  };
+
+  // 步骤1: 创建HashSet
+  steps.push(createStep(
+    codeLineMapping.createHashSet,
+    { num_set: [] },
+    { ...baseVisualization },
+    '创建一个空的HashSet用于存储数组中的数字'
+  ));
+
+  // 步骤2-n: 将数字添加到HashSet
+  const numSet: number[] = [];
+  for (const num of nums) {
+    if (!numSet.includes(num)) {
+      numSet.push(num);
+    }
+    steps.push(createStep(
+      codeLineMapping.addToHashSetLoop,
+      { num_set: [...numSet], num },
+      { ...baseVisualization, hashSetNumbers: [...numSet], highlightedNumbers: [num] },
+      `将数字 ${num} 添加到HashSet中`
+    ));
+  }
+
+  // 步骤: 初始化longestStreak
+  let longestStreak = 0;
+  let longestSequence: number[] = [];
+  steps.push(createStep(
+    codeLineMapping.initLongestStreak,
+    { num_set: [...numSet], longestStreak: 0 },
+    { ...baseVisualization, hashSetNumbers: [...numSet] },
+    '初始化最长连续序列长度为0'
+  ));
+
+  // 遍历HashSet中的每个数字
+  const sortedNums = [...new Set(nums)];
+  
+  for (const num of sortedNums) {
+    // 检查是否为序列起点
+    steps.push(createStep(
+      codeLineMapping.forEachNum,
+      { num_set: [...numSet], longestStreak, num },
+      { 
+        ...baseVisualization, 
+        hashSetNumbers: [...numSet], 
+        highlightedNumbers: [num],
+        longestSequence: [...longestSequence]
+      },
+      `遍历到数字 ${num}`
+    ));
+
+    const isStart = !numSet.includes(num - 1);
+    steps.push(createStep(
+      codeLineMapping.checkSequenceStart,
+      { num_set: [...numSet], longestStreak, num },
+      { 
+        ...baseVisualization, 
+        hashSetNumbers: [...numSet], 
+        highlightedNumbers: [num, num - 1],
+        isSequenceStart: isStart,
+        longestSequence: [...longestSequence]
+      },
+      isStart 
+        ? `${num - 1} 不在HashSet中，${num} 是一个序列的起点`
+        : `${num - 1} 在HashSet中，跳过 ${num}（它不是序列起点）`
+    ));
+
+    if (isStart) {
+      // 初始化当前序列
+      let currentNum = num;
+      let currentStreak = 1;
+      const currentSequence = [num];
+
+      steps.push(createStep(
+        codeLineMapping.initCurrentNum,
+        { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
+        { 
+          ...baseVisualization, 
+          hashSetNumbers: [...numSet], 
+          highlightedNumbers: [num],
+          currentSequence: [...currentSequence],
+          longestSequence: [...longestSequence]
+        },
+        `初始化 currentNum = ${num}, currentStreak = 1`
+      ));
+
+      // 查找连续序列
+      while (numSet.includes(currentNum + 1)) {
+        steps.push(createStep(
+          codeLineMapping.whileLoop,
+          { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
+          { 
+            ...baseVisualization, 
+            hashSetNumbers: [...numSet], 
+            highlightedNumbers: [currentNum, currentNum + 1],
+            currentSequence: [...currentSequence],
+            longestSequence: [...longestSequence]
+          },
+          `检查 ${currentNum + 1} 是否在HashSet中：是`
+        ));
+
+        currentNum += 1;
+        currentStreak += 1;
+        currentSequence.push(currentNum);
+
+        steps.push(createStep(
+          codeLineMapping.incrementCurrentNum,
+          { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
+          { 
+            ...baseVisualization, 
+            hashSetNumbers: [...numSet], 
+            highlightedNumbers: [currentNum],
+            currentSequence: [...currentSequence],
+            longestSequence: [...longestSequence]
+          },
+          `currentNum = ${currentNum}, currentStreak = ${currentStreak}`
+        ));
+      }
+
+      // 检查while循环结束条件
+      if (!numSet.includes(currentNum + 1)) {
+        steps.push(createStep(
+          codeLineMapping.whileLoop,
+          { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
+          { 
+            ...baseVisualization, 
+            hashSetNumbers: [...numSet], 
+            highlightedNumbers: [currentNum, currentNum + 1],
+            currentSequence: [...currentSequence],
+            longestSequence: [...longestSequence]
+          },
+          `检查 ${currentNum + 1} 是否在HashSet中：否，退出循环`
+        ));
+      }
+
+      // 更新最长序列
+      const oldLongestStreak = longestStreak;
+      if (currentStreak > longestStreak) {
+        longestStreak = currentStreak;
+        longestSequence = [...currentSequence];
+      }
+
+      steps.push(createStep(
+        codeLineMapping.updateLongestStreak,
+        { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
+        { 
+          ...baseVisualization, 
+          hashSetNumbers: [...numSet], 
+          highlightedNumbers: [],
+          currentSequence: [...currentSequence],
+          longestSequence: [...longestSequence]
+        },
+        `比较 currentStreak(${currentStreak}) 和 longestStreak(${oldLongestStreak})，更新 longestStreak = ${longestStreak}`
+      ));
+    }
+  }
+
+  // 返回结果
+  steps.push(createStep(
+    codeLineMapping.returnResult,
+    { num_set: [...numSet], longestStreak },
+    { 
+      ...baseVisualization, 
+      hashSetNumbers: [...numSet], 
+      longestSequence: [...longestSequence]
+    },
+    `算法结束，返回最长连续序列长度: ${longestStreak}`
+  ));
+
+  return steps;
+}
+
+// 验证输入数据
+export function validateInput(input: string): { valid: boolean; data?: number[]; error?: string } {
+  const trimmed = input.trim();
+  
+  if (!trimmed) {
+    return { valid: false, error: '输入不能为空' };
+  }
+
+  // 支持多种格式：[1,2,3] 或 1,2,3 或 1 2 3
+  let numbers: number[];
+  
+  try {
+    // 尝试解析JSON数组格式
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      numbers = JSON.parse(trimmed);
+    } else {
+      // 尝试解析逗号或空格分隔的格式
+      numbers = trimmed.split(/[,\s]+/).map(s => {
+        const n = parseInt(s.trim(), 10);
+        if (isNaN(n)) throw new Error(`无效的数字: ${s}`);
+        return n;
+      });
+    }
+
+    // 验证数组长度
+    if (numbers.length > 100) {
+      return { valid: false, error: '数组长度不能超过100（为了更好的可视化效果）' };
+    }
+
+    // 验证数字范围
+    for (const n of numbers) {
+      if (n < -1000000000 || n > 1000000000) {
+        return { valid: false, error: '数字必须在 -10^9 到 10^9 之间' };
+      }
+    }
+
+    return { valid: true, data: numbers };
+  } catch {
+    return { valid: false, error: '输入格式无效，请输入数字数组，如: [1,2,3] 或 1,2,3' };
+  }
+}
+
+// 生成随机数据
+export function generateRandomData(): number[] {
+  const length = Math.floor(Math.random() * 15) + 5; // 5-20个数字
+  const numbers: number[] = [];
+  
+  for (let i = 0; i < length; i++) {
+    // 生成-50到50之间的随机数，增加连续序列的概率
+    numbers.push(Math.floor(Math.random() * 101) - 50);
+  }
+  
+  return numbers;
+}
+
+// 预设样例数据
+export const sampleData = [
+  { name: '示例1', data: [100, 4, 200, 1, 3, 2] },
+  { name: '示例2', data: [0, 3, 7, 2, 5, 8, 4, 6, 0, 1] },
+  { name: '示例3', data: [1, 0, 1, 2] },
+];

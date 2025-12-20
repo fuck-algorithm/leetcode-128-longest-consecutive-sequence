@@ -1,0 +1,1 @@
+export { WechatFloat } from './WechatFloat';

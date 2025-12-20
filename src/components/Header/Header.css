@@ -1,0 +1,32 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-bottom: 1px solid #2d3748;
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffa116;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.header-title:hover {
+  color: #ffb84d;
+  text-decoration: underline;
+}
+
+.github-link {
+  color: #a0aec0;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.github-link:hover {
+  color: #ffffff;
+}

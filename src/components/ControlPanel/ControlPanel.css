@@ -1,0 +1,99 @@
+.control-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 24px;
+  background: #1e2433;
+  border-top: 1px solid #2d3748;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #4a5568;
+  color: #e2e8f0;
+}
+
+.control-btn:hover:not(:disabled) {
+  background: #5a6578;
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.control-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-icon {
+  font-size: 12px;
+}
+
+.btn-text {
+  font-weight: 500;
+}
+
+.btn-shortcut {
+  font-size: 11px;
+  color: #a0aec0;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+.reset-btn {
+  background: #e53e3e;
+  color: white;
+}
+
+.reset-btn:hover:not(:disabled) {
+  background: #f56565;
+}
+
+.play-btn {
+  background: #38a169;
+  color: white;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.play-btn:hover:not(:disabled) {
+  background: #48bb78;
+}
+
+.play-btn.playing {
+  background: #ffa116;
+  color: #1a1a2e;
+}
+
+.play-btn.playing:hover:not(:disabled) {
+  background: #ffb84d;
+}
+
+.prev-btn .btn-icon,
+.next-btn .btn-icon {
+  font-size: 10px;
+}
+
+.step-info {
+  color: #a0aec0;
+  font-size: 14px;
+  min-width: 100px;
+  text-align: center;
+}

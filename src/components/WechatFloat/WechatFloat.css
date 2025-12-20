@@ -1,0 +1,87 @@
+.wechat-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+}
+
+.float-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #07c160 0%, #06ad56 100%);
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(7, 193, 96, 0.4);
+  transition: all 0.3s ease;
+}
+
+.float-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(7, 193, 96, 0.5);
+}
+
+.float-text {
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.qr-popup {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.qr-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr-image {
+  width: 180px;
+  height: auto;
+  border-radius: 8px;
+}
+
+.qr-hint {
+  margin-top: 12px;
+  color: #4a5568;
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* 箭头指示器 */
+.qr-popup::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  right: 24px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid white;
+}
