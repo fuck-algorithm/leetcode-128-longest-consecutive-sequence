@@ -1,0 +1,78 @@
+# Implementation Plan
+
+- [x] 1. Create GitHub Service module
+  - [x] 1.1 Create `src/services/githubService.ts` with constants and interfaces
+    - Define GITHUB_REPO_URL, GITHUB_API_URL, CACHE_DURATION constants
+    - Define StarCache interface
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [x] 1.2 Implement `getStarCount` function with caching logic
+    - Check cache validity using existing IndexedDB utilities
+    - Fetch from GitHub API when cache invalid
+    - Save to cache on successful fetch
+    - Return cached value or default 0 on failure
+    - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.6_
+  - [x] 1.3 Write property test for cache validity
+    - **Property 1: Cache validity determines data source**
+    - **Validates: Requirements 2.2, 4.2**
+  - [x] 1.4 Write property test for cache save behavior
+    - **Property 2: Successful API response triggers cache save with timestamp**
+    - **Validates: Requirements 2.4, 4.1**
+  - [x] 1.5 Write property test for API failure fallback
+    - **Property 3: API failure with existing cache returns cached value**
+    - **Validates: Requirements 2.5**
+
+- [x] 2. Extend IndexedDB utilities for round-trip testing
+  - [x] 2.1 Verify existing `getStarCache` and `saveStarCache` functions work correctly
+    - Review and test existing implementation in `src/utils/indexedDB.ts`
+    - _Requirements: 4.1, 4.2_
+  - [x] 2.2 Write property test for cache round-trip
+    - **Property 4: Cache data round-trip consistency**
+    - **Validates: Requirements 4.3, 4.4**
+
+- [x] 3. Create AlgorithmIdeaModal component
+  - [x] 3.1 Create `src/components/AlgorithmIdeaModal/AlgorithmIdeaModal.tsx`
+    - Implement modal with isOpen and onClose props
+    - Add semi-transparent backdrop
+    - Center modal on screen
+    - _Requirements: 3.2, 3.4, 3.5_
+  - [x] 3.2 Create `src/components/AlgorithmIdeaModal/AlgorithmIdeaModal.css`
+    - Style modal container, backdrop, and content
+    - Add close button styling
+    - _Requirements: 3.5_
+  - [x] 3.3 Add algorithm idea content for Longest Consecutive Sequence
+    - Include problem description, approach, complexity analysis, key points
+    - _Requirements: 3.3_
+  - [x] 3.4 Create `src/components/AlgorithmIdeaModal/index.ts` export file
+    - _Requirements: 3.1_
+  - [x] 3.5 Write unit tests for AlgorithmIdeaModal
+    - Test modal renders when open
+    - Test modal closes on backdrop click
+    - Test modal closes on close button click
+    - _Requirements: 3.2, 3.4, 3.5_
+
+- [x] 4. Update Header component
+  - [x] 4.1 Add Algorithm Idea button to Header
+    - Position button to the left of GitHub badge
+    - Add click handler to open modal
+    - _Requirements: 3.1, 3.2_
+  - [x] 4.2 Integrate AlgorithmIdeaModal into Header
+    - Add modal state management (isModalOpen)
+    - Render modal conditionally
+    - _Requirements: 3.2, 3.4_
+  - [x] 4.3 Update Header to use GitHub Service
+    - Replace inline fetch logic with githubService.getStarCount()
+    - Ensure tooltip text is "点击去GitHub仓库Star支持一下"
+    - _Requirements: 1.3, 2.1_
+  - [x] 4.4 Update Header.css for new button styling
+    - Style algorithm idea button
+    - Ensure proper spacing between button and GitHub badge
+    - _Requirements: 3.1_
+  - [x] 4.5 Write unit tests for Header component
+    - Test GitHub badge renders with correct link
+    - Test tooltip displays correct text
+    - Test algorithm idea button renders
+    - Test modal opens on button click
+    - _Requirements: 1.1, 1.2, 1.3, 3.1, 3.2_
+
+- [x] 5. Final Checkpoint
+  - Ensure all tests pass, ask the user if questions arise.

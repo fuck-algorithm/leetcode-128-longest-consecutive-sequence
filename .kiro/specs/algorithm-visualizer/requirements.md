@@ -10,6 +10,11 @@
 - **Canvas**: 画布组件，用于绘制数据结构和算法执行过程的可视化
 - **HashSet**: 哈希集合数据结构，用于存储不重复的数字
 - **Step**: 算法执行的单个步骤，包含代码行号、变量状态和可视化状态
+- **StepId**: 步骤的唯一标识符，用于多语言代码行绑定
+- **LineMapping**: 代码行号映射表，将StepId映射到各语言的具体代码行号
+- **Annotation**: 动态标注，在节点/边/元素上添加的文字说明
+- **DataFlow**: 数据流，表示值从一个位置传递到另一个位置的过程
+- **StateTransition**: 状态转移，表示变量或数据结构状态的变更
 - **PlayState**: 播放状态，包括playing（播放中）、paused（暂停）、stopped（停止）
 - **CodePanel**: 代码面板组件，展示算法代码并高亮当前执行行
 - **ControlPanel**: 控制面板组件，提供播放控制按钮
@@ -77,17 +82,21 @@
 
 #### Acceptance Criteria
 
-1. WHEN 页面加载完成 THEN Algorithm Visualizer SHALL 将页面大部分空间分配给画布区域
+1. WHEN 页面加载完成 THEN Algorithm Visualizer SHALL 将页面至少70%的空间分配给画布区域
 2. WHEN 用户拖动画布 THEN Algorithm Visualizer SHALL 支持画布平移操作
-3. WHEN 用户滚动鼠标滚轮 THEN Algorithm Visualizer SHALL 支持画布缩放操作
-4. WHEN 算法执行时 THEN Algorithm Visualizer SHALL 在画布上绘制原始数组的可视化表示
-5. WHEN 算法执行时 THEN Algorithm Visualizer SHALL 在画布上绘制HashSet数据结构及其内容变化
+3. WHEN 用户滚动鼠标滚轮 THEN Algorithm Visualizer SHALL 支持画布缩放操作（缩放范围0.5x-3x）
+4. WHEN 算法执行时 THEN Algorithm Visualizer SHALL 在画布上绘制原始数组的可视化表示，每个元素显示索引和值
+5. WHEN 算法执行时 THEN Algorithm Visualizer SHALL 在画布上绘制HashSet数据结构，清晰展示key-value结构
 6. WHEN 算法执行时 THEN Algorithm Visualizer SHALL 用不同颜色高亮当前操作的元素
 7. WHEN 算法执行时 THEN Algorithm Visualizer SHALL 用颜色区分当前序列和最长序列
-8. WHEN 数据发生变更时 THEN Algorithm Visualizer SHALL 使用箭头指示数据流向，并在箭头旁添加文字说明
-9. WHEN 状态发生转移时 THEN Algorithm Visualizer SHALL 在节点上方或旁边展示状态变更的标签文本
-10. WHEN 画布绘制元素时 THEN Algorithm Visualizer SHALL 确保元素分散布局，避免重叠
-11. WHEN 数据结构较大时 THEN Algorithm Visualizer SHALL 自动调整视图以适应内容
+8. WHEN 数据发生变更时 THEN Algorithm Visualizer SHALL 使用带箭头的连线指示数据流向
+9. WHEN 数据流动时 THEN Algorithm Visualizer SHALL 在箭头旁边展示文字说明（如"添加到HashSet"、"检查num-1是否存在"）
+10. WHEN 状态发生转移时 THEN Algorithm Visualizer SHALL 在节点上方展示状态变更的标签文本
+11. WHEN 变量值发生变更时 THEN Algorithm Visualizer SHALL 在画布上展示变量的完整数据结构和当前值
+12. WHEN 画布绘制元素时 THEN Algorithm Visualizer SHALL 确保元素分散布局，任意两个元素边界框重叠面积不超过10%
+13. WHEN 数据结构较大时 THEN Algorithm Visualizer SHALL 自动调整视图缩放以适应内容
+14. WHEN 绘制HashMap或HashSet时 THEN Algorithm Visualizer SHALL 清晰展示每个bucket的key和对应的value
+15. WHEN 算法执行时 THEN Algorithm Visualizer SHALL 展示当前步骤的文字描述说明
 
 ### Requirement 6: 播放控制面板
 
@@ -165,3 +174,41 @@
 
 1. WHEN 查看README THEN README SHALL 说明这是LeetCode 128题的可视化动画演示
 2. WHEN 查看README THEN README SHALL 包含GitHub Pages在线演示的链接
+
+
+### Requirement 13: 动态标注系统
+
+**User Story:** 作为用户，我希望在画布元素上看到详细的文字标注，以便理解每个步骤的具体操作。
+
+#### Acceptance Criteria
+
+1. WHEN 算法步骤涉及数值比较时 THEN Algorithm Visualizer SHALL 在相关元素旁展示比较操作的标注（如"100 == 100? true"）
+2. WHEN 算法步骤涉及数值赋值时 THEN Algorithm Visualizer SHALL 使用箭头从源位置指向目标位置，并标注赋值说明
+3. WHEN 算法步骤涉及变量更新时 THEN Algorithm Visualizer SHALL 在变量区域展示更新前后的值变化
+4. WHEN 算法步骤涉及循环迭代时 THEN Algorithm Visualizer SHALL 展示当前迭代的索引和元素值
+5. WHEN 算法步骤涉及条件判断时 THEN Algorithm Visualizer SHALL 展示判断条件和结果（true/false）
+
+### Requirement 14: 详细步骤分镜
+
+**User Story:** 作为用户，我希望算法的每个细节操作都有独立的步骤展示，以便完整理解算法执行过程。
+
+#### Acceptance Criteria
+
+1. WHEN 生成算法步骤时 THEN Algorithm Visualizer SHALL 为每个变量初始化创建独立步骤
+2. WHEN 生成算法步骤时 THEN Algorithm Visualizer SHALL 为每次循环迭代的开始创建独立步骤
+3. WHEN 生成算法步骤时 THEN Algorithm Visualizer SHALL 为每次条件判断创建独立步骤
+4. WHEN 生成算法步骤时 THEN Algorithm Visualizer SHALL 为每次数据结构操作（添加、查找、删除）创建独立步骤
+5. WHEN 生成算法步骤时 THEN Algorithm Visualizer SHALL 为每次变量更新创建独立步骤
+6. WHEN 生成算法步骤时 THEN Algorithm Visualizer SHALL 为算法结束和返回结果创建独立步骤
+
+### Requirement 15: 多语言代码行绑定
+
+**User Story:** 作为用户，我希望切换编程语言时代码高亮能正确对应当前步骤，以便在不同语言间对比学习。
+
+#### Acceptance Criteria
+
+1. WHEN 定义算法步骤时 THEN Algorithm Visualizer SHALL 使用StepId作为步骤的唯一标识符
+2. WHEN 定义代码行映射时 THEN Algorithm Visualizer SHALL 为每个StepId维护各语言（Java、Python、Golang、JavaScript）的代码行号映射
+3. WHEN 用户切换编程语言时 THEN Algorithm Visualizer SHALL 根据当前StepId查找对应语言的代码行号并高亮
+4. WHEN 同一步骤对应多行代码时 THEN Algorithm Visualizer SHALL 支持高亮多行代码
+5. WHEN 代码行映射不存在时 THEN Algorithm Visualizer SHALL 保持上一步的高亮状态

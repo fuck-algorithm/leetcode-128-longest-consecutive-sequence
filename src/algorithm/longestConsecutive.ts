@@ -168,16 +168,23 @@ export const codeLineMapping = codeLineMappings.java;
 // 生成算法执行步骤
 export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
   const steps: AlgorithmStep[] = [];
+  let stepCounter = 0;
   
   const createStep = (
+    stepId: string,
+    stepType: import('../types').StepType,
     lineNumber: number,
     variables: VariableState,
     visualization: VisualizationState,
     description: string
   ): AlgorithmStep => ({
+    stepId: `${stepId}_${stepCounter++}`,
+    stepType,
     lineNumber,
     variables: { ...variables },
     visualization: { ...visualization },
+    annotations: [],
+    dataFlows: [],
     description,
   });
 
@@ -193,6 +200,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
 
   // 步骤1: 创建HashSet
   steps.push(createStep(
+    'create_hashset',
+    'variable_init',
     codeLineMapping.createHashSet,
     { num_set: [] },
     { ...baseVisualization },
@@ -206,6 +215,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
       numSet.push(num);
     }
     steps.push(createStep(
+      'add_to_hashset',
+      'data_operation',
       codeLineMapping.addToHashSetLoop,
       { num_set: [...numSet], num },
       { ...baseVisualization, hashSetNumbers: [...numSet], highlightedNumbers: [num] },
@@ -217,6 +228,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
   let longestStreak = 0;
   let longestSequence: number[] = [];
   steps.push(createStep(
+    'init_longest_streak',
+    'variable_init',
     codeLineMapping.initLongestStreak,
     { num_set: [...numSet], longestStreak: 0 },
     { ...baseVisualization, hashSetNumbers: [...numSet] },
@@ -229,6 +242,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
   for (const num of sortedNums) {
     // 检查是否为序列起点
     steps.push(createStep(
+      'for_each_num',
+      'loop_iteration',
       codeLineMapping.forEachNum,
       { num_set: [...numSet], longestStreak, num },
       { 
@@ -242,6 +257,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
 
     const isStart = !numSet.includes(num - 1);
     steps.push(createStep(
+      'check_sequence_start',
+      'condition_check',
       codeLineMapping.checkSequenceStart,
       { num_set: [...numSet], longestStreak, num },
       { 
@@ -263,6 +280,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
       const currentSequence = [num];
 
       steps.push(createStep(
+        'init_current_num',
+        'variable_init',
         codeLineMapping.initCurrentNum,
         { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
         { 
@@ -278,6 +297,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
       // 查找连续序列
       while (numSet.includes(currentNum + 1)) {
         steps.push(createStep(
+          'while_loop_check',
+          'condition_check',
           codeLineMapping.whileLoop,
           { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
           { 
@@ -295,6 +316,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
         currentSequence.push(currentNum);
 
         steps.push(createStep(
+          'increment_current',
+          'variable_update',
           codeLineMapping.incrementCurrentNum,
           { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
           { 
@@ -311,6 +334,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
       // 检查while循环结束条件
       if (!numSet.includes(currentNum + 1)) {
         steps.push(createStep(
+          'while_loop_exit',
+          'condition_check',
           codeLineMapping.whileLoop,
           { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
           { 
@@ -332,6 +357,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
       }
 
       steps.push(createStep(
+        'update_longest_streak',
+        'variable_update',
         codeLineMapping.updateLongestStreak,
         { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
         { 
@@ -348,6 +375,8 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
 
   // 返回结果
   steps.push(createStep(
+    'return_result',
+    'algorithm_end',
     codeLineMapping.returnResult,
     { num_set: [...numSet], longestStreak },
     { 

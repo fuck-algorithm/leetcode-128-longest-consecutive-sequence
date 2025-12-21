@@ -36,6 +36,55 @@ beforeEach(async () => {
 
 describe('IndexedDB Cache', () => {
   /**
+   * **Feature: github-badge-algorithm-idea, Property 4: Cache data round-trip consistency**
+   * 
+   * For any valid StarCache object { stars: number, timestamp: number },
+   * serializing to IndexedDB and then deserializing SHALL produce an equivalent object
+   * with identical stars and timestamp values.
+   * 
+   * **Validates: Requirements 4.3, 4.4**
+   */
+  describe('Property 4: Cache data round-trip consistency', () => {
+    it('should preserve star count through save and retrieve cycle', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: 1000000 }), // any valid star count
+          async (stars) => {
+            // Save to IndexedDB
+            await saveStarCache(stars);
+            
+            // Retrieve from IndexedDB
+            const retrieved = await getStarCache();
+            
+            // Verify round-trip consistency
+            expect(retrieved).toBe(stars);
+          }
+        ),
+        { numRuns: 100 }
+      );
+    });
+
+    it('should preserve cache validity state through save and check cycle', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: 1000000 }),
+          async (stars) => {
+            // Save fresh cache
+            await saveStarCache(stars);
+            
+            // Check validity immediately after save
+            const isValid = await isStarCacheValid();
+            
+            // Fresh cache should always be valid
+            expect(isValid).toBe(true);
+          }
+        ),
+        { numRuns: 100 }
+      );
+    });
+  });
+
+  /**
    * **Feature: algorithm-visualizer, Property 8: 缓存有效期**
    * *For any* 缓存的Star数据，如果当前时间与缓存时间戳的差值小于1小时，
    * 则应返回缓存值而不发起新的API请求。

@@ -83,7 +83,7 @@ export function Canvas({ visualization, stepDescription }: CanvasProps) {
     const g = svg.append('g')
       .attr('transform', `translate(${transform.x + width / 2}, ${transform.y + height / 2}) scale(${transform.scale})`);
 
-    const { originalArray, hashSetNumbers, highlightedNumbers, currentSequence, longestSequence } = visualization;
+    const { originalArray, hashSetNumbers = [], highlightedNumbers = [], currentSequence, longestSequence } = visualization;
 
     // 绘制原始数组
     const arrayY = -120;
@@ -101,8 +101,10 @@ export function Canvas({ visualization, stepDescription }: CanvasProps) {
       .text('原始数组 nums[]');
 
     // 绘制原始数组单元格
-    originalArray.forEach((num, i) => {
+    originalArray.forEach((item, i) => {
       const x = arrayStartX + i * cellWidth;
+      // 处理两种可能的数组格式
+      const num = typeof item === 'number' ? item : item.value;
       const isHighlighted = highlightedNumbers.includes(num);
       const isInCurrentSeq = currentSequence.includes(num);
       const isInLongestSeq = longestSequence.includes(num);

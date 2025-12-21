@@ -20,6 +20,37 @@
   text-decoration: underline;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.algorithm-idea-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(137, 180, 250, 0.1);
+  border: 1px solid rgba(137, 180, 250, 0.3);
+  border-radius: 8px;
+  color: #89b4fa;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.algorithm-idea-btn:hover {
+  background: rgba(137, 180, 250, 0.2);
+  border-color: rgba(137, 180, 250, 0.5);
+  color: #b4d0fb;
+}
+
+.algorithm-idea-btn svg {
+  flex-shrink: 0;
+}
+
 .github-section {
   display: flex;
   align-items: center;

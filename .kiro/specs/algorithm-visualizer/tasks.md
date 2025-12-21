@@ -44,19 +44,55 @@
     - **Validates: Requirements 3.5**
 
 - [-] 4. 算法步骤生成引擎
-  - [ ] 4.1 定义算法步骤数据结构
-    - 创建AlgorithmStep、VariableState、VisualizationState类型
-    - 定义多语言代码行号映射机制
-    - _Requirements: 4.3, 5.4, 5.5_
-  - [ ] 4.2 实现最长连续序列算法步骤生成器
-    - 生成详细的分步骤执行过程
-    - 每步包含代码行号、变量状态、可视化状态、描述
-    - 支持HashSet构建、序列查找、最长序列更新等阶段
-    - _Requirements: 4.3, 4.4, 5.4, 5.5, 5.6, 5.7_
-  - [ ] 4.3 编写代码行号映射属性测试
+  - [x] 4.1 定义算法步骤数据结构
+    - 创建AlgorithmStep、StepType、VariableState、VisualizationState类型
+    - 创建Annotation、DataFlow、LineMapping类型
+    - 定义stepId命名规范（如 "init_hashset", "loop_start_0"）
+    - _Requirements: 4.3, 5.4, 5.5, 14.1-14.6, 15.1_
+  - [x] 4.2 实现多语言代码行号映射
+    - 创建LineMapping数据结构
+    - 为每个stepId定义四种语言的代码行号映射
+    - 支持单行和多行代码高亮
+    - _Requirements: 15.2, 15.3, 15.4, 15.5_
+  - [ ] 4.3 编写StepId唯一性属性测试
+    - **Property 13: StepId唯一性**
+    - **Validates: Requirements 15.1**
+  - [ ] 4.4 编写多语言映射完整性属性测试
+    - **Property 14: 多语言映射完整性**
+    - **Validates: Requirements 15.2, 15.4**
+  - [ ] 4.5 实现最长连续序列算法步骤生成器
+    - 为每个变量初始化创建独立步骤（stepType: variable_init）
+    - 为每次循环迭代创建独立步骤（stepType: loop_iteration）
+    - 为每次条件判断创建独立步骤（stepType: condition_check）
+    - 为每次数据结构操作创建独立步骤（stepType: data_operation）
+    - 为每次变量更新创建独立步骤（stepType: variable_update）
+    - 为算法结束创建独立步骤（stepType: algorithm_end）
+    - _Requirements: 4.3, 4.4, 5.4, 5.5, 5.6, 5.7, 14.1-14.6_
+  - [ ] 4.6 编写步骤类型覆盖完整性属性测试
+    - **Property 16: 步骤类型覆盖完整性**
+    - **Validates: Requirements 14.1, 14.6**
+  - [ ] 4.7 实现动态标注生成
+    - 为数值比较生成comparison类型标注
+    - 为赋值操作生成assignment类型标注
+    - 为变量更新生成value_change类型标注（包含oldValue和newValue）
+    - 为循环迭代生成iteration类型标注
+    - 为条件判断生成condition类型标注
+    - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
+  - [ ] 4.8 编写变量更新记录完整性属性测试
+    - **Property 15: 变量更新记录完整性**
+    - **Validates: Requirements 13.3**
+  - [ ] 4.9 实现数据流生成
+    - 为数据变更生成DataFlow对象
+    - 设置sourceId和targetId指向正确的元素
+    - 为每个DataFlow添加描述性label
+    - _Requirements: 5.8, 5.9_
+  - [ ] 4.10 编写数据流标签非空属性测试
+    - **Property 12: 数据流标签非空**
+    - **Validates: Requirements 5.9**
+  - [ ] 4.11 编写代码行号映射属性测试
     - **Property 6: 代码行号映射一致性**
-    - **Validates: Requirements 4.3**
-  - [ ] 4.4 编写变量值展示属性测试
+    - **Validates: Requirements 4.3, 15.2, 15.3**
+  - [ ] 4.12 编写变量值展示属性测试
     - **Property 7: 变量值展示正确性**
     - **Validates: Requirements 4.4**
 
@@ -111,43 +147,61 @@
   - [ ] 9.2 实现语言切换功能
     - 支持Java、Python、Golang、JavaScript切换
     - 使用IndexedDB记住用户语言选择
-    - _Requirements: 4.1, 4.2_
+    - 切换语言时根据stepId查找对应行号并高亮
+    - _Requirements: 4.1, 4.2, 15.3_
   - [ ] 9.3 实现调试模式功能
-    - 高亮当前执行的代码行
+    - 支持高亮单行或多行代码
     - 在代码行后方展示变量内存值
-    - _Requirements: 4.3, 4.4_
+    - _Requirements: 4.3, 4.4, 15.4_
 
 - [ ] 10. Canvas组件实现
   - [ ] 10.1 实现D3.js画布基础功能
-    - 创建SVG画布占据页面大部分空间
+    - 创建SVG画布占据页面至少70%空间
     - 实现拖动平移功能
-    - 实现滚轮缩放功能
+    - 实现滚轮缩放功能（缩放范围0.5x-3x）
     - _Requirements: 5.1, 5.2, 5.3_
-  - [ ] 10.2 实现原始数组可视化
-    - 绘制原始数组元素
+  - [ ] 10.2 编写缩放范围限制属性测试
+    - **Property 11: 缩放范围限制**
+    - **Validates: Requirements 5.3**
+  - [ ] 10.3 实现原始数组可视化
+    - 绘制原始数组元素，显示索引和值
     - 用颜色高亮当前操作的元素
     - _Requirements: 5.4, 5.6_
-  - [ ] 10.3 实现HashSet数据结构可视化
+  - [ ] 10.4 实现HashSet数据结构可视化
     - 绘制HashSet容器和内容
+    - 清晰展示每个bucket的key
     - 展示元素添加过程
-    - 清晰展示key-value结构
-    - _Requirements: 5.5_
-  - [ ] 10.4 实现序列可视化
+    - _Requirements: 5.5, 5.14_
+  - [ ] 10.5 实现序列可视化
     - 用颜色区分当前序列和最长序列
     - 展示序列查找过程
     - _Requirements: 5.7_
-  - [ ] 10.5 实现数据流和状态转移可视化
-    - 使用箭头指示数据流向
-    - 在箭头旁添加文字说明
-    - 在节点上方展示状态变更标签
+  - [ ] 10.6 实现数据流箭头可视化
+    - 使用带箭头的连线指示数据流向
+    - 在箭头旁边展示文字说明
+    - 支持动画效果
     - _Requirements: 5.8, 5.9_
-  - [ ] 10.6 优化画布布局
-    - 确保元素分散布局避免重叠
-    - 大型数据结构自动调整视图
-    - _Requirements: 5.10, 5.11_
-  - [ ] 10.7 编写画布元素不重叠属性测试
+  - [ ] 10.7 实现动态标注可视化
+    - 在节点上方展示状态变更标签
+    - 展示比较操作结果（如"100 == 100? true"）
+    - 展示变量更新前后值变化
+    - 展示循环迭代索引和元素值
+    - 展示条件判断结果
+    - _Requirements: 5.10, 5.11, 13.1, 13.2, 13.3, 13.4, 13.5_
+  - [ ] 10.8 实现变量区域可视化
+    - 在画布上展示变量的完整数据结构
+    - 展示变量当前值
+    - _Requirements: 5.11_
+  - [ ] 10.9 优化画布布局
+    - 确保元素分散布局，重叠面积不超过10%
+    - 大型数据结构自动调整视图缩放
+    - _Requirements: 5.12, 5.13_
+  - [ ] 10.10 编写画布元素不重叠属性测试
     - **Property 9: 画布元素不重叠**
-    - **Validates: Requirements 5.10**
+    - **Validates: Requirements 5.12**
+  - [ ] 10.11 实现步骤描述展示
+    - 在画布上展示当前步骤的文字描述
+    - _Requirements: 5.15_
 
 - [ ] 11. ControlPanel组件实现
   - [ ] 11.1 实现播放控制按钮
