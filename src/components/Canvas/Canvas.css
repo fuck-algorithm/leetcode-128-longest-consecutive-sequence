@@ -35,7 +35,7 @@
   text-align: right;
 }
 
-.reset-btn {
+.reset-view-btn {
   background: #4a5568;
   color: #e2e8f0;
   border: none;
@@ -50,7 +50,7 @@
   transition: background-color 0.2s ease;
 }
 
-.reset-btn:hover {
+.reset-view-btn:hover {
   background: #5a6578;
 }
 
@@ -71,14 +71,19 @@
 }
 
 .step-description {
-  padding: 12px 16px;
-  background: #16213e;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
   border-top: 1px solid #2d3748;
   color: #e2e8f0;
   font-size: 14px;
   text-align: center;
-  min-height: 44px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+}
+
+.step-icon {
+  font-size: 16px;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-python';
@@ -21,6 +21,8 @@ const languageNames: Record<CodeLanguage, string> = {
   golang: 'Go',
   javascript: 'JavaScript'
 };
+
+const languageList: CodeLanguage[] = ['java', 'python', 'golang', 'javascript'];
 
 const prismLanguages: Record<CodeLanguage, string> = {
   java: 'java',
@@ -46,7 +48,6 @@ const lineVariableMapping: Record<number, (keyof VariableState)[]> = {
 
 export function CodePanel({ currentLine, variables, language, onLanguageChange }: CodePanelProps) {
   const codeRef = useRef<HTMLPreElement>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (codeRef.current) {
@@ -92,32 +93,17 @@ export function CodePanel({ currentLine, variables, language, onLanguageChange }
   return (
     <div className="code-panel">
       <div className="code-header">
-        <div className="language-selector">
-          <button 
-            className="language-btn"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            type="button"
-          >
-            <span>{languageNames[language]}</span>
-            <span className="dropdown-arrow">▼</span>
-          </button>
-          {isDropdownOpen && (
-            <div className="language-dropdown">
-              {(Object.keys(languageNames) as CodeLanguage[]).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  className={`dropdown-item ${lang === language ? 'active' : ''}`}
-                  onClick={() => {
-                    onLanguageChange(lang);
-                    setIsDropdownOpen(false);
-                  }}
-                >
-                  {languageNames[lang]}
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="language-tabs">
+          {languageList.map((lang) => (
+            <button
+              key={lang}
+              type="button"
+              className={`language-tab ${lang === language ? 'active' : ''}`}
+              onClick={() => onLanguageChange(lang)}
+            >
+              {languageNames[lang]}
+            </button>
+          ))}
         </div>
         <span className="code-badge">Debug 模式</span>
       </div>
