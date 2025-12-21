@@ -62,7 +62,8 @@
 .reset-btn {
   background: #e53e3e;
   color: white;
-  min-width: 100px;
+  min-width: 120px;
+  padding: 10px 20px;
   justify-content: center;
 }
 
