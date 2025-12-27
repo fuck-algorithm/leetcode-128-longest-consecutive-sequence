@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import Prism from 'prismjs';
+import 'prismjs/themes/prism-tomorrow.css';
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-go';
@@ -47,11 +48,15 @@ const lineVariableMapping: Record<number, (keyof VariableState)[]> = {
 };
 
 export function CodePanel({ currentLine, variables, language, onLanguageChange }: CodePanelProps) {
-  const codeRef = useRef<HTMLPreElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (codeRef.current) {
-      Prism.highlightElement(codeRef.current);
+    // 对容器内所有的 code 元素进行语法高亮
+    if (containerRef.current) {
+      const codeElements = containerRef.current.querySelectorAll('code');
+      codeElements.forEach((element) => {
+        Prism.highlightElement(element);
+      });
     }
   }, [language]);
 
@@ -107,21 +112,18 @@ export function CodePanel({ currentLine, variables, language, onLanguageChange }
         </div>
         <span className="code-badge">Debug 模式</span>
       </div>
-      <div className="code-container">
+      <div className="code-container" ref={containerRef}>
         {codeLines.map((line, index) => {
           const lineNum = index + 1;
           const isHighlighted = lineNum === mappedCurrentLine;
           const lineVars = isHighlighted ? getLineVariables(currentLine) : '';
           return (
             <div 
-              key={index} 
+              key={`${language}-${index}`} 
               className={`code-line ${isHighlighted ? 'highlighted' : ''}`}
             >
               <span className="line-number">{lineNum}</span>
-              <pre 
-                ref={index === 0 ? codeRef : undefined}
-                className="line-content"
-              >
+              <pre className="line-content">
                 <code className={`language-${prismLanguages[language]}`}>{line || ' '}</code>
               </pre>
               {lineVars && (

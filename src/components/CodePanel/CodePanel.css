@@ -130,37 +130,123 @@
   z-index: 10;
 }
 
-/* Prism.js 主题覆盖 */
-.code-panel .token.keyword {
-  color: #c586c0;
-}
-
-.code-panel .token.class-name {
-  color: #4ec9b0;
-}
-
-.code-panel .token.function {
-  color: #dcdcaa;
-}
-
-.code-panel .token.string {
-  color: #ce9178;
-}
-
-.code-panel .token.number {
-  color: #b5cea8;
-}
-
-.code-panel .token.operator {
+/* Prism.js 主题覆盖 - VS Code Dark+ 风格 */
+.code-panel code[class*="language-"],
+.code-panel pre[class*="language-"] {
   color: #d4d4d4;
+  background: transparent;
+  text-shadow: none;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: inherit;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: inherit;
+  tab-size: 4;
+  hyphens: none;
+}
+
+.code-panel .token.comment,
+.code-panel .token.prolog,
+.code-panel .token.doctype,
+.code-panel .token.cdata {
+  color: #6a9955;
 }
 
 .code-panel .token.punctuation {
   color: #d4d4d4;
 }
 
-.code-panel .token.comment {
-  color: #6a9955;
+.code-panel .token.property,
+.code-panel .token.tag,
+.code-panel .token.boolean,
+.code-panel .token.number,
+.code-panel .token.constant,
+.code-panel .token.symbol,
+.code-panel .token.deleted {
+  color: #b5cea8;
+}
+
+.code-panel .token.selector,
+.code-panel .token.attr-name,
+.code-panel .token.string,
+.code-panel .token.char,
+.code-panel .token.builtin,
+.code-panel .token.inserted {
+  color: #ce9178;
+}
+
+.code-panel .token.operator,
+.code-panel .token.entity,
+.code-panel .token.url,
+.code-panel .language-css .token.string,
+.code-panel .style .token.string {
+  color: #d4d4d4;
+}
+
+.code-panel .token.atrule,
+.code-panel .token.attr-value,
+.code-panel .token.keyword {
+  color: #c586c0;
+}
+
+.code-panel .token.function,
+.code-panel .token.method {
+  color: #dcdcaa;
+}
+
+.code-panel .token.class-name,
+.code-panel .token.type-name {
+  color: #4ec9b0;
+}
+
+.code-panel .token.regex,
+.code-panel .token.important,
+.code-panel .token.variable {
+  color: #d16969;
+}
+
+.code-panel .token.important,
+.code-panel .token.bold {
+  font-weight: bold;
+}
+
+.code-panel .token.italic {
+  font-style: italic;
+}
+
+.code-panel .token.entity {
+  cursor: help;
+}
+
+/* Java 特定样式 */
+.code-panel .token.annotation {
+  color: #dcdcaa;
+}
+
+/* Python 特定样式 */
+.code-panel .token.decorator {
+  color: #dcdcaa;
+}
+
+.code-panel .token.builtin {
+  color: #4ec9b0;
+}
+
+/* Go 特定样式 */
+.code-panel .token.package {
+  color: #c586c0;
+}
+
+/* JavaScript 特定样式 */
+.code-panel .token.template-string {
+  color: #ce9178;
+}
+
+.code-panel .token.template-punctuation {
+  color: #ce9178;
 }
 
 /* 滚动条样式 */
