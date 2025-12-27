@@ -32,7 +32,7 @@ body {
 }
 
 .code-section {
-  width: 576px;  /* 480px * 1.2 = 576px */
+  width: 480px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -47,7 +47,35 @@ body {
   min-width: 0;
 }
 
+.context-section {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 /* 响应式布局 */
+@media (max-width: 1400px) {
+  .context-section {
+    width: 240px;
+  }
+  
+  .code-section {
+    width: 420px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .context-section {
+    display: none;
+  }
+  
+  .code-section {
+    width: 480px;
+  }
+}
+
 @media (max-width: 1024px) {
   .main-content {
     flex-direction: column;
@@ -61,6 +89,10 @@ body {
 
   .canvas-section {
     height: 60%;
+  }
+  
+  .context-section {
+    display: none;
   }
 }
 

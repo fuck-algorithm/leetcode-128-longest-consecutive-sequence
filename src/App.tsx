@@ -6,6 +6,7 @@ import { Canvas } from './components/Canvas';
 import { ControlPanel } from './components/ControlPanel';
 import { ProgressBar } from './components/ProgressBar';
 import { WechatFloat } from './components/WechatFloat';
+import { ExecutionContext } from './components/ExecutionContext';
 import { generateAlgorithmSteps, sampleData, CodeLanguage } from './algorithm/longestConsecutive';
 import { AlgorithmStep, PlayState } from './types';
 import './App.css';
@@ -180,6 +181,13 @@ function App() {
           <Canvas 
             visualization={currentStepData.visualization}
             stepDescription={currentStepData.description}
+          />
+        </div>
+        <div className="context-section">
+          <ExecutionContext
+            variables={currentStepData.variables}
+            currentStepId={currentStepData.stepId || ''}
+            stepType={currentStepData.stepType || 'variable_init'}
           />
         </div>
       </div>

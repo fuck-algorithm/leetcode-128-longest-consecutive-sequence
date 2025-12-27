@@ -259,3 +259,201 @@ export interface ValidationResult {
   data?: number[];
   error?: string;
 }
+
+// ==================== 动画系统 ====================
+
+/**
+ * 动画状态
+ */
+export type AnimationState = 'idle' | 'entering' | 'active' | 'exiting';
+
+/**
+ * 粒子效果配置
+ */
+export interface ParticleEffect {
+  id: string;
+  sourceX: number;
+  sourceY: number;
+  targetX: number;
+  targetY: number;
+  value: string | number;
+  color: string;
+  progress: number;  // 0-1
+  duration: number;  // 毫秒
+}
+
+/**
+ * 脉冲动画配置
+ */
+export interface PulseAnimation {
+  elementId: string;
+  fromColor: string;
+  toColor: string;
+  duration: number;
+  repeat: number;
+}
+
+/**
+ * 指针移动轨迹
+ */
+export interface PointerTrail {
+  id: string;
+  name: string;
+  path: Array<{ x: number; y: number }>;
+  currentIndex: number;
+  color: string;
+}
+
+// ==================== 智能标签系统 ====================
+
+/**
+ * 标签避让策略
+ */
+export type LabelAvoidanceStrategy = 'auto' | 'stack' | 'offset' | 'hide';
+
+/**
+ * 智能标签配置
+ */
+export interface SmartLabel {
+  id: string;
+  text: string;
+  targetId: string;
+  preferredPosition: AnnotationPosition;
+  actualPosition?: AnnotationPosition;
+  offset?: { x: number; y: number };
+  visible: boolean;
+  priority: number;  // 优先级，数字越大越重要
+  contextSensitive: boolean;  // 是否上下文敏感
+  showOnSteps?: string[];  // 仅在特定步骤显示
+}
+
+/**
+ * 标签边界框
+ */
+export interface LabelBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+// ==================== 执行上下文 ====================
+
+/**
+ * 栈帧
+ */
+export interface StackFrame {
+  id: string;
+  functionName: string;
+  parameters: Record<string, unknown>;
+  localVariables: Record<string, unknown>;
+  returnValue?: unknown;
+  depth: number;
+  isActive: boolean;
+}
+
+/**
+ * 变量监控项
+ */
+export interface WatchedVariable {
+  name: string;
+  value: unknown;
+  previousValue?: unknown;
+  hasChanged: boolean;
+  type: 'primitive' | 'array' | 'object' | 'set';
+}
+
+/**
+ * 执行上下文状态
+ */
+export interface ExecutionContext {
+  callStack: StackFrame[];
+  watchedVariables: WatchedVariable[];
+  currentDepth: number;
+  maxDepth: number;
+}
+
+// ==================== 自适应渲染 ====================
+
+/**
+ * 数据规模级别
+ */
+export type DataScaleLevel = 'small' | 'medium' | 'large';
+
+/**
+ * 渲染密度配置
+ */
+export interface RenderDensityConfig {
+  showAllLabels: boolean;
+  showOnlyActiveLabels: boolean;
+  aggregateDisplay: boolean;
+  hotspotHighlight: boolean;
+  labelFontSize: number;
+  cellSize: number;
+  spacing: number;
+}
+
+/**
+ * 自适应渲染配置
+ */
+export interface AdaptiveRenderConfig {
+  dataScale: DataScaleLevel;
+  density: RenderDensityConfig;
+  autoAdjust: boolean;
+}
+
+// ==================== 增强可视化状态 ====================
+
+/**
+ * 增强的可视化状态
+ */
+export interface EnhancedVisualizationState extends VisualizationState {
+  // 动画效果
+  particles?: ParticleEffect[];
+  pulseAnimations?: PulseAnimation[];
+  pointerTrails?: PointerTrail[];
+  
+  // 智能标签
+  smartLabels?: SmartLabel[];
+  
+  // 执行上下文
+  executionContext?: ExecutionContext;
+  
+  // 渲染配置
+  renderConfig?: AdaptiveRenderConfig;
+  
+  // 当前操作的元素ID列表
+  activeElementIds?: string[];
+  
+  // 比较操作信息
+  comparisonInfo?: {
+    leftValue: number | string;
+    rightValue: number | string;
+    operator: '==' | '!=' | '<' | '>' | '<=' | '>=' | 'contains';
+    result: boolean;
+  };
+}
+
+// ==================== 状态标签类型 ====================
+
+/**
+ * 状态标签类型
+ */
+export type StateLabelType = 
+  | 'recursing'      // [递归中]
+  | 'visited'        // [已访问]
+  | 'queued'         // [队列中]
+  | 'processing'     // [处理中]
+  | 'completed'      // [已完成]
+  | 'skipped';       // [已跳过]
+
+/**
+ * 状态标签配置
+ */
+export interface StateTag {
+  type: StateLabelType;
+  elementId: string;
+  text: string;
+  color: string;
+  backgroundColor: string;
+}

@@ -87,3 +87,126 @@
 .step-icon {
   font-size: 16px;
 }
+
+/* ==================== 动画效果 ==================== */
+
+/* 粒子效果 */
+.particle-effect {
+  pointer-events: none;
+}
+
+.particle-trail {
+  pointer-events: none;
+}
+
+/* 指针标签动画 */
+.pointer-label {
+  animation: pointer-bounce 0.5s ease-out;
+}
+
+@keyframes pointer-bounce {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(2px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 智能标签 */
+.smart-label {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.smart-label:hover {
+  transform: scale(1.05);
+}
+
+/* 状态标签 */
+.state-tag {
+  animation: tag-appear 0.3s ease-out;
+}
+
+@keyframes tag-appear {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 比较标注 */
+.comparison-annotation {
+  pointer-events: none;
+}
+
+/* 数据流标签 */
+.data-flow-label {
+  pointer-events: none;
+}
+
+/* 高亮脉冲动画 */
+@keyframes highlight-pulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3);
+  }
+}
+
+.highlighted-element {
+  animation: highlight-pulse 1s ease-in-out infinite;
+}
+
+/* 序列连接线动画 */
+@keyframes flow-dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.sequence-connector {
+  animation: flow-dash 1s linear infinite;
+}
+
+/* 元素入场动画 */
+@keyframes element-enter {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.element-entering {
+  animation: element-enter 0.4s ease-out;
+}
+
+/* 值变化闪烁 */
+@keyframes value-change {
+  0%, 100% {
+    fill: currentColor;
+  }
+  50% {
+    fill: #ffa116;
+  }
+}
+
+.value-changed {
+  animation: value-change 0.5s ease;
+}
