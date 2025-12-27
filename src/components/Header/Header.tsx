@@ -4,6 +4,7 @@ import { getStarCount, GITHUB_REPO_URL } from '../../services/githubService';
 import { AlgorithmIdeaModal } from '../AlgorithmIdeaModal';
 
 const LEETCODE_URL = 'https://leetcode.cn/problems/longest-consecutive-sequence/';
+const LEETCODE_HOT_100_URL = 'https://fuck-algorithm.github.io/leetcode-hot-100/';
 
 export function Header() {
   const [starCount, setStarCount] = useState<number>(0);
@@ -23,6 +24,29 @@ export function Header() {
 
   return (
     <header className="header">
+      <div className="header-left">
+        <a 
+          href={LEETCODE_HOT_100_URL} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="back-link"
+          title="返回 LeetCode Hot 100"
+        >
+          <svg 
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2"
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          LeetCode Hot 100
+        </a>
+      </div>
       <a 
         href={LEETCODE_URL} 
         target="_blank" 

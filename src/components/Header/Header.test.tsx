@@ -66,4 +66,13 @@ describe('Header', () => {
     const leetcodeLink = screen.getByText('128. 最长连续序列');
     expect(leetcodeLink).toHaveAttribute('href', 'https://leetcode.cn/problems/longest-consecutive-sequence/');
   });
+
+  it('should render LeetCode Hot 100 back link with correct URL', () => {
+    render(<Header />);
+    
+    const backLink = screen.getByText('LeetCode Hot 100');
+    expect(backLink).toBeInTheDocument();
+    expect(backLink).toHaveAttribute('href', 'https://fuck-algorithm.github.io/leetcode-hot-100/');
+    expect(backLink).toHaveAttribute('target', '_blank');
+  });
 });
