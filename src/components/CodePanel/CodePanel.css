@@ -65,18 +65,18 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 8px 0;
+  padding: 2px 0;
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 12px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .code-line {
   display: flex;
-  align-items: flex-start;
-  padding: 2px 0;
+  align-items: center;
+  padding: 1px 0;
   transition: background-color 0.2s ease;
-  min-height: 22px;
+  min-height: 20px;
   position: relative;
 }
 
