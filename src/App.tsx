@@ -181,6 +181,8 @@ function App() {
           <Canvas 
             visualization={currentStepData.visualization}
             stepDescription={currentStepData.description}
+            currentStep={currentStep}
+            steps={steps}
           />
         </div>
         <div className="context-section">

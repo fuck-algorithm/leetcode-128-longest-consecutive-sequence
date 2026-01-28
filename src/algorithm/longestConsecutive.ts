@@ -176,15 +176,17 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
     lineNumber: number,
     variables: VariableState,
     visualization: VisualizationState,
-    description: string
+    description: string,
+    annotations: import('../types').Annotation[] = [],
+    dataFlows: import('../types').DataFlow[] = []
   ): AlgorithmStep => ({
     stepId: `${stepId}_${stepCounter++}`,
     stepType,
     lineNumber,
     variables: { ...variables },
     visualization: { ...visualization },
-    annotations: [],
-    dataFlows: [],
+    annotations,
+    dataFlows,
     description,
   });
 
@@ -205,23 +207,72 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
     codeLineMapping.createHashSet,
     { num_set: [] },
     { ...baseVisualization },
-    '创建一个空的HashSet用于存储数组中的数字'
+    '创建一个空的HashSet用于存储数组中的数字',
+    [{
+      id: 'create-hs',
+      type: 'assignment',
+      targetId: 'array-title',
+      position: 'bottom',
+      text: '创建HashSet存储结构',
+      highlight: true
+    }],
+    [{
+      id: 'flow-create-hs',
+      sourceId: 'array-title',
+      targetId: 'hashset-title',
+      label: '初始化',
+      animated: true
+    }]
   ));
 
   // 步骤2-n: 将数字添加到HashSet
   const numSet: number[] = [];
+  let arrayIndex = 0;
   for (const num of nums) {
+    const originalIndex = arrayIndex++;
     if (!numSet.includes(num)) {
       numSet.push(num);
+      steps.push(createStep(
+        'add_to_hashset',
+        'data_operation',
+        codeLineMapping.addToHashSetLoop,
+        { num_set: [...numSet], num },
+        { ...baseVisualization, hashSetNumbers: [...numSet], highlightedNumbers: [num] },
+        `将数字 ${num} 添加到HashSet中`,
+        [{
+          id: `add-${num}`,
+          type: 'assignment',
+          targetId: `hashset-${num}`,
+          position: 'right',
+          text: `add(${num})`,
+          highlight: true
+        }],
+        [{
+          id: `flow-add-${num}`,
+          sourceId: `array-${originalIndex}`,
+          targetId: `hashset-${num}`,
+          label: '添加',
+          animated: true
+        }]
+      ));
+    } else {
+      steps.push(createStep(
+        'skip_duplicate',
+        'data_operation',
+        codeLineMapping.addToHashSetLoop,
+        { num_set: [...numSet], num },
+        { ...baseVisualization, hashSetNumbers: [...numSet], highlightedNumbers: [num] },
+        `数字 ${num} 已存在，跳过重复项`,
+        [{
+          id: `skip-${num}`,
+          type: 'assignment',
+          targetId: `array-${originalIndex}`,
+          position: 'right',
+          text: '重复，跳过',
+          highlight: false
+        }]
+      ));
     }
-    steps.push(createStep(
-      'add_to_hashset',
-      'data_operation',
-      codeLineMapping.addToHashSetLoop,
-      { num_set: [...numSet], num },
-      { ...baseVisualization, hashSetNumbers: [...numSet], highlightedNumbers: [num] },
-      `将数字 ${num} 添加到HashSet中`
-    ));
   }
 
   // 步骤: 初始化longestStreak
@@ -233,7 +284,22 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
     codeLineMapping.initLongestStreak,
     { num_set: [...numSet], longestStreak: 0 },
     { ...baseVisualization, hashSetNumbers: [...numSet] },
-    '初始化最长连续序列长度为0'
+    '初始化最长连续序列长度为0',
+    [{
+      id: 'init-longest',
+      type: 'assignment',
+      targetId: 'longest-var',
+      position: 'top',
+      text: 'longestStreak = 0',
+      highlight: true
+    }],
+    [{
+      id: 'flow-init-longest',
+      sourceId: 'hashset-title',
+      targetId: 'longest-var',
+      label: '准备遍历',
+      animated: true
+    }]
   ));
 
   // 遍历HashSet中的每个数字
@@ -252,7 +318,22 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
         highlightedNumbers: [num],
         longestSequence: [...longestSequence]
       },
-      `遍历到数字 ${num}`
+      `遍历HashSet中的数字 ${num}`,
+      [{
+        id: `loop-${num}`,
+        type: 'iteration',
+        targetId: `hashset-${num}`,
+        position: 'top',
+        text: `for num=${num}`,
+        highlight: true
+      }],
+      [{
+        id: `flow-loop-${num}`,
+        sourceId: 'hashset-title',
+        targetId: `hashset-${num}`,
+        label: '遍历',
+        animated: true
+      }]
     ));
 
     const isStart = !numSet.includes(num - 1);
@@ -264,13 +345,34 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
       { 
         ...baseVisualization, 
         hashSetNumbers: [...numSet], 
-        highlightedNumbers: [num, num - 1],
+        highlightedNumbers: [num],
         isSequenceStart: isStart,
         longestSequence: [...longestSequence]
       },
       isStart 
         ? `${num - 1} 不在HashSet中，${num} 是一个序列的起点`
-        : `${num - 1} 在HashSet中，跳过 ${num}（它不是序列起点）`
+        : `${num - 1} 在HashSet中，跳过 ${num}（它不是序列起点）`,
+      [{
+        id: `check-${num}`,
+        type: 'comparison',
+        targetId: `hashset-${num}`,
+        position: isStart ? 'right' : 'top',
+        text: isStart ? `!contains(${num - 1})? true` : `contains(${num - 1})? false`,
+        highlight: isStart
+      }],
+      isStart ? [{
+        id: `flow-check-start-${num}`,
+        sourceId: 'hashset-title',
+        targetId: `hashset-${num}`,
+        label: '序列起点',
+        animated: true
+      }] : [{
+        id: `flow-check-skip-${num}`,
+        sourceId: `hashset-${num - 1}`,
+        targetId: `hashset-${num}`,
+        label: '跳过',
+        animated: true
+      }]
     ));
 
     if (isStart) {
@@ -291,11 +393,27 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
           currentSequence: [...currentSequence],
           longestSequence: [...longestSequence]
         },
-        `初始化 currentNum = ${num}, currentStreak = 1`
+        `初始化 currentNum = ${num}, currentStreak = 1`,
+        [{
+          id: `init-${num}`,
+          type: 'assignment',
+          targetId: `hashset-${num}`,
+          position: 'right',
+          text: `currentNum=${num}, currentStreak=1`,
+          highlight: true
+        }],
+        [{
+          id: `flow-start-${num}`,
+          sourceId: `hashset-${num}`,
+          targetId: 'sequence-start',
+          label: '开始序列',
+          animated: true
+        }]
       ));
 
       // 查找连续序列
       while (numSet.includes(currentNum + 1)) {
+        const prevNum = currentNum;
         steps.push(createStep(
           'while_loop_check',
           'condition_check',
@@ -308,7 +426,22 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
             currentSequence: [...currentSequence],
             longestSequence: [...longestSequence]
           },
-          `检查 ${currentNum + 1} 是否在HashSet中：是`
+          `检查 ${currentNum + 1} 是否在HashSet中：是`,
+          [{
+            id: `check-${currentNum}`,
+            type: 'comparison',
+            targetId: `hashset-${currentNum}`,
+            position: 'top',
+            text: `contains(${currentNum + 1})? true`,
+            highlight: true
+          }],
+          [{
+            id: `flow-check-${currentNum}`,
+            sourceId: `hashset-${currentNum}`,
+            targetId: `hashset-${currentNum + 1}`,
+            label: `+1`,
+            animated: true
+          }]
         ));
 
         currentNum += 1;
@@ -327,7 +460,22 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
             currentSequence: [...currentSequence],
             longestSequence: [...longestSequence]
           },
-          `currentNum = ${currentNum}, currentStreak = ${currentStreak}`
+          `currentNum = ${currentNum}, currentStreak = ${currentStreak}`,
+          [{
+            id: `update-${currentNum}`,
+            type: 'value_change',
+            targetId: `hashset-${currentNum}`,
+            position: 'right',
+            text: `++currentNum, ++currentStreak`,
+            highlight: true
+          }],
+          [{
+            id: `flow-update-${currentNum}`,
+            sourceId: `hashset-${prevNum}`,
+            targetId: `hashset-${currentNum}`,
+            label: '推进',
+            animated: true
+          }]
         ));
       }
 
@@ -341,11 +489,19 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
           { 
             ...baseVisualization, 
             hashSetNumbers: [...numSet], 
-            highlightedNumbers: [currentNum, currentNum + 1],
+            highlightedNumbers: [currentNum],
             currentSequence: [...currentSequence],
             longestSequence: [...longestSequence]
           },
-          `检查 ${currentNum + 1} 是否在HashSet中：否，退出循环`
+          `检查 ${currentNum + 1} 是否在HashSet中：否，退出循环`,
+          [{
+            id: `exit-${currentNum}`,
+            type: 'condition',
+            targetId: `hashset-${currentNum}`,
+            position: 'top',
+            text: `contains(${currentNum + 1})? false`,
+            highlight: true
+          }]
         ));
       }
 
@@ -354,22 +510,60 @@ export function generateAlgorithmSteps(nums: number[]): AlgorithmStep[] {
       if (currentStreak > longestStreak) {
         longestStreak = currentStreak;
         longestSequence = [...currentSequence];
+        
+        steps.push(createStep(
+          'update_longest_streak',
+          'variable_update',
+          codeLineMapping.updateLongestStreak,
+          { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
+          { 
+            ...baseVisualization, 
+            hashSetNumbers: [...numSet], 
+            highlightedNumbers: [],
+            currentSequence: [...currentSequence],
+            longestSequence: [...longestSequence]
+          },
+          `更新最长序列: ${currentStreak} > ${oldLongestStreak}`,
+          [{
+            id: `update-longest-${num}`,
+            type: 'comparison',
+            targetId: 'longest-seq-label',
+            position: 'top',
+            text: `${currentStreak} > ${oldLongestStreak}, 更新!`,
+            highlight: true
+          }],
+          [{
+            id: `flow-longest-${num}`,
+            sourceId: 'current-seq',
+            targetId: 'longest-seq',
+            label: `长度: ${currentStreak}`,
+            animated: true
+          }]
+        ));
+      } else {
+        steps.push(createStep(
+          'no_update_longest_streak',
+          'variable_update',
+          codeLineMapping.updateLongestStreak,
+          { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
+          { 
+            ...baseVisualization, 
+            hashSetNumbers: [...numSet], 
+            highlightedNumbers: [],
+            currentSequence: [...currentSequence],
+            longestSequence: [...longestSequence]
+          },
+          `不更新: ${currentStreak} <= ${longestStreak}`,
+          [{
+            id: `no-update-${num}`,
+            type: 'comparison',
+            targetId: 'longest-seq-label',
+            position: 'top',
+            text: `${currentStreak} <= ${longestStreak}, 不更新`,
+            highlight: false
+          }]
+        ));
       }
-
-      steps.push(createStep(
-        'update_longest_streak',
-        'variable_update',
-        codeLineMapping.updateLongestStreak,
-        { num_set: [...numSet], longestStreak, num, currentNum, currentStreak },
-        { 
-          ...baseVisualization, 
-          hashSetNumbers: [...numSet], 
-          highlightedNumbers: [],
-          currentSequence: [...currentSequence],
-          longestSequence: [...longestSequence]
-        },
-        `比较 currentStreak(${currentStreak}) 和 longestStreak(${oldLongestStreak})，更新 longestStreak = ${longestStreak}`
-      ));
     }
   }
 

@@ -70,22 +70,9 @@
   display: block;
 }
 
-.step-description {
-  padding: 14px 16px;
-  background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
-  border-top: 1px solid #2d3748;
-  color: #e2e8f0;
-  font-size: 14px;
-  text-align: center;
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.step-icon {
-  font-size: 16px;
+/* 画布内部说明框样式 */
+.step-description-overlay rect {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 /* ==================== 动画效果 ==================== */

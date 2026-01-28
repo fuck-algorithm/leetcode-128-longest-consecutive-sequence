@@ -68,16 +68,16 @@
   padding: 2px 0;
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 13px;
-  line-height: 1;
+  line-height: 1.5;
 }
 
 .code-line {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 0;
   transition: background-color 0.2s ease;
   min-height: 18px;
-  height: 18px;
+  height: auto;
   position: relative;
 }
 
@@ -105,7 +105,8 @@
   margin: 0;
   padding: 0;
   background: transparent;
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
   overflow-x: hidden;
   min-width: 0;
   line-height: 18px;
@@ -116,7 +117,9 @@
   font-size: inherit;
   background: transparent;
   padding: 0;
-  line-height: inherit;
+  line-height: 1.5;
+  display: inline-block;
+  width: 100%;
 }
 
 .line-variables {
@@ -142,10 +145,10 @@
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: inherit;
   text-align: left;
-  white-space: pre;
+  white-space: pre-wrap;
   word-spacing: normal;
-  word-break: normal;
-  word-wrap: normal;
+  word-break: break-all;
+  word-wrap: break-word;
   line-height: 18px;
   tab-size: 4;
   hyphens: none;

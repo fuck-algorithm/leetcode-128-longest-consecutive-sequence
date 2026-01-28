@@ -32,7 +32,7 @@ body {
 }
 
 .code-section {
-  width: 480px;
+  width: 624px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -62,7 +62,7 @@ body {
   }
   
   .code-section {
-    width: 420px;
+    width: 546px;
   }
 }
 
@@ -72,7 +72,7 @@ body {
   }
   
   .code-section {
-    width: 480px;
+    width: 624px;
   }
 }
 
