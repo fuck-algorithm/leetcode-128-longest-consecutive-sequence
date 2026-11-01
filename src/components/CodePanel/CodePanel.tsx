@@ -13,6 +13,10 @@ interface CodePanelProps {
   currentLine: number;
   variables: VariableState;
   language: CodeLanguage;
+  stepId: string;
+  stepType: string;
+  stepNumber: number;
+  totalSteps: number;
   onLanguageChange: (lang: CodeLanguage) => void;
 }
 
@@ -47,7 +51,7 @@ const lineVariableMapping: Record<number, (keyof VariableState)[]> = {
   24: ['longestStreak'],
 };
 
-export function CodePanel({ currentLine, variables, language, onLanguageChange }: CodePanelProps) {
+export function CodePanel({ currentLine, variables, language, stepId, stepType, stepNumber, totalSteps, onLanguageChange }: CodePanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,6 +63,7 @@ export function CodePanel({ currentLine, variables, language, onLanguageChange }
       });
     }
   }, [language]);
+
 
   const formatVariableValue = (key: keyof VariableState, value: unknown): string => {
     if (value === undefined) return '';
@@ -95,9 +100,29 @@ export function CodePanel({ currentLine, variables, language, onLanguageChange }
 
   const mappedCurrentLine = getMappedLine(currentLine);
 
+  useEffect(() => {
+    const activeLine = containerRef.current?.querySelector<HTMLElement>('.code-line.highlighted');
+    activeLine?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+  }, [mappedCurrentLine, language]);
+
+  const stepLabels: Record<string, string> = {
+    variable_init: '变量初始化',
+    loop_start: '进入循环',
+    loop_iteration: '遍历元素',
+    condition_check: '条件判断',
+    data_operation: '集合操作',
+    variable_update: '更新变量',
+    algorithm_end: '返回结果',
+  };
+  const watchedVariables = Object.entries(variables).filter(([, value]) => value !== undefined).slice(0, 3);
+
   return (
     <div className="code-panel">
       <div className="code-header">
+        <div className="code-heading">
+          <span className="code-file-icon">{language === 'python' ? 'Py' : language === 'java' ? 'J' : language === 'golang' ? 'Go' : 'JS'}</span>
+          <span className="code-file-name">Solution.{language === 'python' ? 'py' : language === 'java' ? 'java' : language === 'golang' ? 'go' : 'js'}</span>
+        </div>
         <div className="language-tabs">
           {languageList.map((lang) => (
             <button
@@ -110,7 +135,17 @@ export function CodePanel({ currentLine, variables, language, onLanguageChange }
             </button>
           ))}
         </div>
-        <span className="code-badge">Debug 模式</span>
+      </div>
+      <div className="debug-strip">
+        <span className="debug-playhead"><i /></span>
+        <span className="debug-step">{stepLabels[stepType] || '执行步骤'} <b>{stepNumber + 1} / {totalSteps}</b></span>
+        <span className="debug-id">{stepId}</span>
+      </div>
+      <div className="watch-panel" aria-label="变量监视">
+        <span className="watch-title">变量</span>
+        {watchedVariables.map(([name, value]) => (
+          <span className="watch-item" key={name}><b>{name}</b><code>{formatVariableValue(name as keyof VariableState, value)}</code></span>
+        ))}
       </div>
       <div className="code-container" ref={containerRef}>
         {codeLines.map((line, index) => {
@@ -121,7 +156,9 @@ export function CodePanel({ currentLine, variables, language, onLanguageChange }
             <div 
               key={`${language}-${index}`} 
               className={`code-line ${isHighlighted ? 'highlighted' : ''}`}
+              data-current={isHighlighted ? 'true' : undefined}
             >
+              <span className={`breakpoint ${isHighlighted ? 'breakpoint-active' : ''}`} aria-hidden="true" />
               <span className="line-number">{lineNum}</span>
               <pre className="line-content">
                 <code className={`language-${prismLanguages[language]}`}>{line || ' '}</code>

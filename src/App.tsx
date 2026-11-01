@@ -170,19 +170,21 @@ function App() {
       
       <div className="main-content">
         <div className="code-section">
-          <CodePanel 
-            currentLine={currentStepData.lineNumber} 
+          <CodePanel
+            currentLine={currentStepData.lineNumber}
             variables={currentStepData.variables}
             language={codeLanguage}
+            stepId={currentStepData.stepId}
+            stepType={currentStepData.stepType}
+            stepNumber={currentStep}
+            totalSteps={steps.length}
             onLanguageChange={handleLanguageChange}
           />
         </div>
         <div className="canvas-section">
-          <Canvas 
+          <Canvas
             visualization={currentStepData.visualization}
             stepDescription={currentStepData.description}
-            currentStep={currentStep}
-            steps={steps}
           />
         </div>
         <div className="context-section">
