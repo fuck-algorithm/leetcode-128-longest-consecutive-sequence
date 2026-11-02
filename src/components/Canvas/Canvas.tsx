@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import * as d3 from 'd3';
 import { VisualizationState, LabelBounds, DataScaleLevel } from '../../types';
+import { getCanvasLayout } from './layout';
+import { getStepNarration } from './narration';
 import { createGlowFilter, stateColors } from '../../utils/animation';
-import { renderComparisonAnnotation, renderDataFlowLabel } from './SmartLabels';
 import './Canvas.css';
 
 interface CanvasProps {
@@ -44,6 +45,7 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
   const [transform, setTransform] = useState<Transform>({ x: 0, y: 0, scale: 1 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [canvasSize, setCanvasSize] = useState({ width: 1200, height: 720 });
   const elementBoundsRef = useRef<Map<string, LabelBounds>>(new Map());
   const prevVisualizationRef = useRef<VisualizationState | null>(null);
 
@@ -102,13 +104,28 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
     }
   }, [handleWheel]);
 
+  // Track the drawable area independently from the fixed SVG viewBox.
+  useEffect(() => {
+    const wrapper = containerRef.current;
+    if (!wrapper) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setCanvasSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+    });
+    observer.observe(wrapper);
+    return () => observer.disconnect();
+  }, []);
+
   // D3可视化渲染
   useEffect(() => {
     if (!svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
-    const width = svgRef.current.clientWidth;
-    const height = svgRef.current.clientHeight;
+    const width = canvasSize.width || svgRef.current.clientWidth;
+    const height = canvasSize.height || svgRef.current.clientHeight;
+    const scale = Math.min(width / 1200, height / 720);
+    const canvasScale = 1 / scale;
+    const viewWidth = width / scale;
+    const viewHeight = height / scale;
 
     // 清除之前的内容
     svg.selectAll('*').remove();
@@ -161,22 +178,21 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
       .attr('d', 'M0,-5L10,0L0,5')
       .attr('fill', '#38a169');
 
-    const g = svg.append('g')
-      .attr('transform', `translate(${transform.x + width / 2}, ${transform.y + height / 2}) scale(${transform.scale})`);
-
     const { originalArray, hashSetNumbers = [], highlightedNumbers = [], currentSequence, longestSequence } = visualization;
     const { cellSize, fontSize, showAllLabels, spacing } = renderConfig;
+    const layout = getCanvasLayout(viewWidth, viewHeight, originalArray.length, hashSetNumbers.length, cellSize, currentSequence.length, longestSequence.length);
+    const { arrayY, hashSetY, sequenceY, longestSequenceY, legendY, cellWidth, arrayStartX, hashSetStartX, hashSetCellSize, hashSetColumns, sequenceCellWidth, sequenceStartX, longestSequenceStartX } = layout;
+    svg.attr('viewBox', `${-viewWidth / 2} ${-viewHeight / 2} ${viewWidth} ${viewHeight}`);
+    const g = svg.append('g')
+      .attr('transform', `translate(${transform.x}, ${transform.y}) scale(${canvasScale * transform.scale})`);
 
     // 检测是否有变化（用于动画）
     const prevVis = prevVisualizationRef.current;
-    const hasNewHighlight = prevVis && 
+    const hasNewHighlight = prevVis &&
       JSON.stringify(prevVis.highlightedNumbers) !== JSON.stringify(highlightedNumbers);
 
     // ==================== 绘制原始数组 ====================
-    const arrayY = -140;
-    const cellWidth = cellSize;
     const cellHeight = cellSize - 10;
-    const arrayStartX = -(originalArray.length * cellWidth) / 2;
 
     // 原始数组标题
     g.append('text')
@@ -202,7 +218,7 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
         x, y: arrayY, width: cellWidth - spacing, height: cellHeight
       });
 
-      // 单元格背景
+      // Highlight the input value being examined; prior values remain readable.
       const rect = g.append('rect')
         .attr('x', x)
         .attr('y', arrayY)
@@ -213,16 +229,16 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
         .attr('stroke', isHighlighted ? '#ffb84d' : '#4a5568')
         .attr('stroke-width', isHighlighted ? 2 : 1);
 
-      // 高亮动画
       if (isHighlighted && hasNewHighlight) {
-        rect
-          .attr('filter', 'url(#glow)')
+        rect.attr('filter', 'url(#glow)')
+          .attr('opacity', 0.65)
+          .transition('focus')
+          .duration(240)
+          .attr('opacity', 1)
+          .attr('stroke-width', 3)
           .transition()
-          .duration(300)
-          .attr('transform', 'scale(1.05)')
-          .transition()
-          .duration(200)
-          .attr('transform', 'scale(1)');
+          .duration(180)
+          .attr('stroke-width', 2);
       }
 
       // 数字
@@ -246,50 +262,10 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
           .text(`[${i}]`);
       }
 
-      // 当前检查指针
-      if (isHighlighted && highlightedNumbers[0] === num) {
-        const arrowX = x + (cellWidth - spacing) / 2;
-        const arrowY = arrayY - 25;
-        
-        // 指针箭头
-        g.append('line')
-          .attr('x1', arrowX)
-          .attr('y1', arrowY - 15)
-          .attr('x2', arrowX)
-          .attr('y2', arrowY)
-          .attr('stroke', '#ffa116')
-          .attr('stroke-width', 2)
-          .attr('marker-end', 'url(#pointer-arrow)');
-
-        // 指针标签
-        const labelGroup = g.append('g')
-          .attr('class', 'pointer-label');
-
-        labelGroup.append('rect')
-          .attr('x', arrowX - 35)
-          .attr('y', arrowY - 40)
-          .attr('width', 70)
-          .attr('height', 20)
-          .attr('rx', 10)
-          .attr('fill', '#ffa116');
-
-        labelGroup.append('text')
-          .attr('x', arrowX)
-          .attr('y', arrowY - 26)
-          .attr('text-anchor', 'middle')
-          .attr('fill', '#1a1a2e')
-          .attr('font-size', '11px')
-          .attr('font-weight', '600')
-          .text('当前检查');
-      }
     });
 
     // ==================== 绘制HashSet ====================
-    const hashSetY = 50;
-    const hashSetCellSize = cellSize - 5;
-    const hashSetCols = Math.max(1, Math.min(hashSetNumbers.length, 10));
-    const hashSetRows = hashSetNumbers.length > 0 ? Math.ceil(hashSetNumbers.length / hashSetCols) : 1;
-    const hashSetStartX = -(hashSetCols * hashSetCellSize) / 2;
+    const hashSetCols = hashSetColumns;
 
     // HashSet标题
     g.append('text')
@@ -346,9 +322,9 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
 
     // ==================== 绘制当前序列 ====================
     if (currentSequence.length > 1) {
-      const seqY = hashSetY + (hashSetNumbers.length > 0 ? hashSetRows * hashSetCellSize : hashSetCellSize) + 50;
-      const seqCellWidth = cellSize - 5;
-      const seqStartX = -(currentSequence.length * seqCellWidth) / 2;
+      const seqY = sequenceY;
+      const seqCellWidth = sequenceCellWidth;
+      const seqStartX = sequenceStartX;
 
       // 当前序列标题
       g.append('text')
@@ -383,28 +359,11 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
           .attr('font-weight', '600')
           .text(num);
 
-        // 绘制连接箭头和+1标注
         if (i < currentSequence.length - 1) {
           const arrowStartX = x + seqCellWidth - 6;
           const arrowEndX = x + seqCellWidth + 2;
           const arrowY = seqY + 17;
-
-          g.append('line')
-            .attr('x1', arrowStartX)
-            .attr('y1', arrowY)
-            .attr('x2', arrowEndX)
-            .attr('y2', arrowY)
-            .attr('stroke', '#4299e1')
-            .attr('stroke-width', 2)
-            .attr('marker-end', 'url(#flow-arrow)');
-
-          // +1 标注
-          renderDataFlowLabel(g, 
-            { x: arrowStartX, y: arrowY },
-            { x: arrowEndX, y: arrowY },
-            '+1',
-            '#4299e1'
-          );
+          g.append('line').attr('x1', arrowStartX).attr('y1', arrowY).attr('x2', arrowEndX).attr('y2', arrowY).attr('stroke', '#4299e1').attr('stroke-width', 2).attr('marker-end', 'url(#flow-arrow)');
         }
       });
 
@@ -420,11 +379,11 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
     }
 
     // ==================== 绘制最长序列 ====================
-    const longestSeqY = hashSetY + (hashSetNumbers.length > 0 ? hashSetRows * hashSetCellSize : hashSetCellSize) + (currentSequence.length > 1 ? 120 : 50);
+    const longestSeqY = longestSequenceY;
     
     if (longestSequence.length > 0) {
-      const seqCellWidth = cellSize - 5;
-      const seqStartX = -(longestSequence.length * seqCellWidth) / 2;
+      const seqCellWidth = sequenceCellWidth;
+      const seqStartX = longestSequenceStartX;
 
       // 最长序列标题
       g.append('text')
@@ -488,41 +447,17 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
         .text(`长度: ${longestSequence.length}`);
     }
 
-    // ==================== 绘制比较说明 ====================
-    if (highlightedNumbers.length === 2) {
-      const num1 = highlightedNumbers[0];
-      const num2 = highlightedNumbers[1];
-      const idx1 = hashSetNumbers.indexOf(num1);
-      
-      if (idx1 !== -1) {
-        const col1 = idx1 % hashSetCols;
-        const row1 = Math.floor(idx1 / hashSetCols);
-        const x1 = hashSetStartX + col1 * hashSetCellSize + (hashSetCellSize - spacing) / 2;
-        const y1 = hashSetY + row1 * hashSetCellSize;
-
-        const isNum2InSet = hashSetNumbers.includes(num2);
-        
-        renderComparisonAnnotation(
-          g,
-          num2,
-          'HashSet',
-          'contains',
-          isNum2InSet,
-          { x: x1 + 120, y: y1 + 15 }
-        );
-      }
-    }
-
     // ==================== 图例 ====================
-    const legendY = longestSeqY + (longestSequence.length > 0 ? 70 : 30);
     const legendItems = [
       { color: stateColors.active, label: '当前检查' },
       { color: stateColors.current, label: '当前序列' },
       { color: stateColors.success, label: '最长序列' },
     ];
 
+    const legendItemsWidth = 3 * 126 - 18;
+    const legendStartX = -legendItemsWidth / 2;
     legendItems.forEach((item, i) => {
-      const x = -100 + i * 100;
+      const x = legendStartX + i * 126;
       g.append('rect')
         .attr('x', x)
         .attr('y', legendY)
@@ -542,7 +477,10 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
     // 保存当前可视化状态用于下次比较
     prevVisualizationRef.current = visualization;
 
-  }, [visualization, transform, renderConfig]);
+  }, [visualization, transform, renderConfig, canvasSize]);
+
+  const currentValues = visualization.highlightedNumbers || [];
+  const narration = getStepNarration(stepDescription, currentValues, visualization);
 
   return (
     <div className="canvas-container">
@@ -561,7 +499,7 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
           </button>
         </div>
       </div>
-      <div 
+      <div
         ref={containerRef}
         className={`canvas-wrapper ${isDragging ? 'dragging' : ''}`}
         onMouseDown={handleMouseDown}
@@ -570,10 +508,10 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
         onMouseLeave={handleMouseUp}
       >
         <svg ref={svgRef} className="canvas-svg" />
-      </div>
-      <div className="step-description">
-        <span className="step-icon">💡</span>
-        {stepDescription}
+        <div className="step-description" role="status" aria-live="polite">
+          <span className="step-action">{narration.action}</span>
+          <span className="step-message">{narration.message}</span>
+        </div>
       </div>
     </div>
   );
