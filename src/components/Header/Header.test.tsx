@@ -29,9 +29,20 @@ describe('Header', () => {
     expect(githubLink).toHaveAttribute('title', '点击去GitHub仓库Star支持一下');
   });
 
+  it('should render a button for the problem description', () => {
+    render(<Header />);
+    expect(screen.getByRole('button', { name: '题目描述' })).toBeInTheDocument();
+  });
+
+  it('should open the problem description from the header button', () => {
+    render(<Header />);
+    fireEvent.click(screen.getByRole('button', { name: '题目描述' }));
+    expect(screen.getByText(/你必须设计并实现时间复杂度为 O\(n\) 的算法/)).toBeInTheDocument();
+  });
+
   it('should render algorithm idea button', () => {
     render(<Header />);
-    
+
     const button = screen.getByRole('button', { name: /算法思路/i });
     expect(button).toBeInTheDocument();
   });

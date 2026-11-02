@@ -2,7 +2,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
+  min-height: 48px;
+  padding: 4px 12px;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border-bottom: 1px solid #2d3748;
   position: relative;
@@ -38,7 +39,9 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 20px;
+  max-width: calc(100% - 340px);
+  overflow: hidden;
+  font-size: 16px;
   font-weight: 600;
   color: #ffa116;
   text-decoration: none;
@@ -54,8 +57,22 @@
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
 }
+
+.problem-description-btn {
+  padding: 5px 9px;
+  color: #a9c9bc;
+  background: rgba(88, 151, 125, .12);
+  border: 1px solid rgba(111, 172, 146, .3);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.problem-description-btn:hover { background: rgba(88, 151, 125, .22); }
+.problem-description-btn:focus-visible { outline: 2px solid #72c3a1; outline-offset: 2px; }
 
 .algorithm-idea-btn {
   display: flex;

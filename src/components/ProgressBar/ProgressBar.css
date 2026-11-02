@@ -1,11 +1,11 @@
 .progress-bar-container {
-  padding: 8px 24px 16px;
+  padding: 2px 12px 5px;
   background: #1e2433;
 }
 
 .progress-bar {
   position: relative;
-  height: 8px;
+  height: 5px;
   background: #4a5568;
   border-radius: 4px;
   cursor: pointer;
@@ -13,7 +13,7 @@
 }
 
 .progress-bar:hover {
-  height: 10px;
+  height: 7px;
 }
 
 .progress-fill {

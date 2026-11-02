@@ -4,6 +4,7 @@ import './AlgorithmIdeaModal.css';
 interface AlgorithmIdeaModalProps {
   isOpen: boolean;
   onClose: () => void;
+  description?: string;
 }
 
 // 最长连续序列算法思路
@@ -27,7 +28,7 @@ const algorithmIdea = {
   ],
 };
 
-export function AlgorithmIdeaModal({ isOpen, onClose }: AlgorithmIdeaModalProps) {
+export function AlgorithmIdeaModal({ isOpen, onClose, description = algorithmIdea.problemDescription }: AlgorithmIdeaModalProps) {
   // 处理 ESC 键关闭
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -67,7 +68,7 @@ export function AlgorithmIdeaModal({ isOpen, onClose }: AlgorithmIdeaModalProps)
         
         <section className="modal-section">
           <h3>问题描述</h3>
-          <p>{algorithmIdea.problemDescription}</p>
+          <p>{description}</p>
         </section>
 
         <section className="modal-section">

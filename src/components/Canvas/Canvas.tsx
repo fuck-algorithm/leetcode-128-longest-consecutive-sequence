@@ -8,6 +8,10 @@ import './Canvas.css';
 interface CanvasProps {
   visualization: VisualizationState;
   stepDescription: string;
+  showCode: boolean;
+  showContext: boolean;
+  onToggleCode: () => void;
+  onToggleContext: () => void;
 }
 
 interface Transform {
@@ -34,7 +38,7 @@ function getRenderConfig(scale: DataScaleLevel) {
   }
 }
 
-export function Canvas({ visualization, stepDescription }: CanvasProps) {
+export function Canvas({ visualization, stepDescription, showCode, showContext, onToggleCode, onToggleContext }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [transform, setTransform] = useState<Transform>({ x: 0, y: 0, scale: 1 });
@@ -544,6 +548,12 @@ export function Canvas({ visualization, stepDescription }: CanvasProps) {
     <div className="canvas-container">
       <div className="canvas-header">
         <span className="canvas-title">算法可视化</span>
+        <div className="canvas-header-actions">
+          <div className="workspace-toggles" aria-label="显示面板">
+            <button type="button" className={`workspace-toggle ${showCode ? 'active' : ''}`} onClick={onToggleCode} aria-pressed={showCode} title="切换代码面板">代码</button>
+            <button type="button" className={`workspace-toggle ${showContext ? 'active' : ''}`} onClick={onToggleContext} aria-pressed={showContext} title="切换调用栈与变量面板">上下文</button>
+          </div>
+        </div>
         <div className="canvas-controls">
           <span className="zoom-level">{Math.round(transform.scale * 100)}%</span>
           <button className="reset-view-btn" onClick={handleReset} title="重置视图">

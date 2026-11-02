@@ -2,15 +2,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 24px;
-  padding: 16px 24px;
+  gap: 16px;
+  min-height: 48px;
+  padding: 4px 12px;
   background: #1e2433;
   border-top: 1px solid #2d3748;
 }
 
 .control-buttons {
   display: flex;
-  gap: 12px;
+  gap: 6px;
   align-items: center;
 }
 
@@ -18,10 +19,10 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 16px;
+  padding: 6px 10px;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 7px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   background: #4a5568;
@@ -62,8 +63,8 @@
 .reset-btn {
   background: #e53e3e;
   color: white;
-  min-width: 120px;
-  padding: 10px 20px;
+  min-width: 82px;
+  padding: 6px 10px;
   justify-content: center;
 }
 
@@ -74,7 +75,7 @@
 .play-btn {
   background: #38a169;
   color: white;
-  min-width: 120px;
+  min-width: 82px;
   justify-content: center;
 }
 
@@ -150,7 +151,7 @@
 
 .step-info {
   color: #a0aec0;
-  font-size: 14px;
+  font-size: 11px;
   min-width: 100px;
   text-align: center;
 }

@@ -67,6 +67,8 @@ function App() {
   const [playState, setPlayState] = useState<PlayState>('stopped');
   const [playSpeed, setPlaySpeed] = useState(DEFAULT_SPEED);
   const [codeLanguage, setCodeLanguage] = useState<CodeLanguage>('java');
+  const [showCode, setShowCode] = useState(false);
+  const [showContext, setShowContext] = useState(false);
   const playIntervalRef = useRef<number | null>(null);
 
   // 加载保存的播放速度
@@ -168,8 +170,8 @@ function App() {
       <Header />
       <InputPanel onDataChange={handleDataChange} currentData={inputData} />
       
-      <div className="main-content">
-        <div className="code-section">
+      <div className={`main-content ${showCode ? '' : 'code-hidden'} ${showContext ? '' : 'context-hidden'}`}>
+        {showCode && <div className="code-section">
           <CodePanel
             currentLine={currentStepData.lineNumber}
             variables={currentStepData.variables}
@@ -180,20 +182,24 @@ function App() {
             totalSteps={steps.length}
             onLanguageChange={handleLanguageChange}
           />
-        </div>
+        </div>}
         <div className="canvas-section">
           <Canvas
             visualization={currentStepData.visualization}
             stepDescription={currentStepData.description}
+            showCode={showCode}
+            showContext={showContext}
+            onToggleCode={() => setShowCode(value => !value)}
+            onToggleContext={() => setShowContext(value => !value)}
           />
         </div>
-        <div className="context-section">
+        {showContext && <div className="context-section">
           <ExecutionContext
             variables={currentStepData.variables}
             currentStepId={currentStepData.stepId || ''}
             stepType={currentStepData.stepType || 'variable_init'}
           />
-        </div>
+        </div>}
       </div>
       
       <ControlPanel

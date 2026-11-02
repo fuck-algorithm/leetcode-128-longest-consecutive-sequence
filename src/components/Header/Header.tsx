@@ -5,6 +5,7 @@ import { AlgorithmIdeaModal } from '../AlgorithmIdeaModal';
 
 const LEETCODE_URL = 'https://leetcode.cn/problems/longest-consecutive-sequence/';
 const LEETCODE_HOT_100_URL = 'https://fuck-algorithm.github.io/leetcode-hot-100/';
+const PROBLEM_DESCRIPTION = '给定一个未排序的整数数组 nums，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。你必须设计并实现时间复杂度为 O(n) 的算法解决此问题。';
 
 export function Header() {
   const [starCount, setStarCount] = useState<number>(0);
@@ -56,7 +57,12 @@ export function Header() {
         128. 最长连续序列
       </a>
       <div className="header-actions">
-        <button 
+        <button
+          className="problem-description-btn"
+          onClick={handleOpenModal}
+          title="查看题目描述"
+        >题目描述</button>
+        <button
           className="algorithm-idea-btn"
           onClick={handleOpenModal}
           title="查看算法思路"
@@ -102,7 +108,7 @@ export function Header() {
           </span>
         </div>
       </div>
-      <AlgorithmIdeaModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      <AlgorithmIdeaModal isOpen={isModalOpen} onClose={handleCloseModal} description={PROBLEM_DESCRIPTION} />
     </header>
   );
 }
