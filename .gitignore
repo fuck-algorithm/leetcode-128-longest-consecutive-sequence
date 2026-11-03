@@ -26,3 +26,6 @@ npm-debug.log*
 # Cache
 .cache/
 .eslintcache
+
+# Local service URLs (including production Pages entry)
+server-url.txt
