@@ -338,6 +338,26 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
         .text(num);
     });
 
+    if (stepDescription.includes('已存在，跳过重复项')) {
+      const value = highlightedNumbers[0];
+      const arrayIndex = originalArray.findIndex((item) => (typeof item === 'number' ? item : item.value) === value && hashSetNumbers.indexOf(value) !== -1);
+      const setIndex = hashSetNumbers.indexOf(value);
+      if (arrayIndex >= 0 && setIndex >= 0) {
+        const sourceX = arrayStartX + arrayIndex * cellWidth + cellWidth / 2;
+        const sourceY = arrayY + cellHeight;
+        const targetX = hashSetStartX + (setIndex % hashSetCols) * hashSetCellSize + hashSetCellSize / 2;
+        const targetY = hashSetY + Math.floor(setIndex / hashSetCols) * hashSetCellSize;
+        const cueY = (sourceY + targetY) / 2;
+        const cue = g.append('g').attr('class', 'duplicate-skip-cue').attr('aria-label', `数组中的 ${value} 与 HashSet 中已有的 ${value} 相同，跳过重复项`);
+        cue.append('path').attr('d', `M${sourceX},${sourceY} Q${sourceX},${cueY} ${targetX},${targetY - 2}`)
+          .attr('fill', 'none').attr('stroke', '#d59a54').attr('stroke-width', 2.5).attr('stroke-dasharray', '6 4').attr('marker-end', 'url(#pointer-arrow)');
+        cue.append('rect').attr('x', (sourceX + targetX) / 2 - 42).attr('y', cueY - 11).attr('width', 84).attr('height', 20).attr('rx', 5)
+          .attr('fill', '#392d1e').attr('stroke', '#d59a54');
+        cue.append('text').attr('x', (sourceX + targetX) / 2).attr('y', cueY + 3).attr('text-anchor', 'middle')
+          .attr('fill', '#f1f4f1').attr('font-size', 9).attr('font-weight', 700).text('已收录，跳过');
+      }
+    }
+
     // Draw one labeled relation for the exact membership check in this frame.
     const insertionCue = getInsertionCue(stepDescription);
     if (insertionCue) {
@@ -561,6 +581,17 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
         .attr('font-size', '12px')
         .attr('font-weight', '600')
         .text(`长度: ${longestSequence.length}`);
+    }
+
+    if (stepDescription.startsWith('更新最长序列:') && currentSequence.length > 0 && longestSequence.length > 0) {
+      const labelY = longestSequenceY - 7;
+      const label = g.append('g').attr('class', 'record-update-cue').attr('aria-label', `当前连续段 ${currentSequence.join(', ')} 更新最长纪录`);
+      label.append('path').attr('d', `M0,${sequenceY + 36} C0,${sequenceY + 54} 0,${labelY - 22} 0,${labelY - 8}`)
+        .attr('fill', 'none').attr('stroke', '#63c49a').attr('stroke-width', 3).attr('marker-end', 'url(#compare-arrow)');
+      label.append('rect').attr('x', -38).attr('y', labelY - 20).attr('width', 76).attr('height', 20).attr('rx', 6)
+        .attr('fill', '#17362c').attr('stroke', '#63c49a').attr('stroke-width', 1.5);
+      label.append('text').attr('x', 0).attr('y', labelY - 6).attr('text-anchor', 'middle')
+        .attr('fill', '#f1f4f1').attr('font-size', 10).attr('font-weight', 700).text('刷新纪录');
     }
 
     // ==================== 图例 ====================

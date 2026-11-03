@@ -83,4 +83,20 @@ describe('Canvas', () => {
     expect(container.querySelector('.missing-membership-cue')?.getAttribute('aria-label')).toBe('前驱 9 缺失');
     expect(container.querySelector('.missing-membership-cue text')?.textContent).toBe('缺少 9');
   });
+
+  it('connects a duplicate input value to its existing set entry with a skip label', () => {
+    const step = generateAlgorithmSteps(sampleData[1].data).find(({ description }) => description.includes('已存在，跳过重复项'))!;
+    const container = renderCanvas(step.visualization, step.description);
+
+    expect(container.querySelector('.duplicate-skip-cue')?.getAttribute('aria-label')).toContain('已有');
+    expect(container.querySelector('.duplicate-skip-cue text')?.textContent).toBe('已收录，跳过');
+  });
+
+  it('shows a copy arrow when the current sequence becomes the longest record', () => {
+    const step = generateAlgorithmSteps(sampleData[0].data).find(({ description }) => description.startsWith('更新最长序列:'))!;
+    const container = renderCanvas(step.visualization, step.description);
+
+    expect(container.querySelector('.record-update-cue')?.getAttribute('aria-label')).toContain('更新最长纪录');
+    expect(container.querySelector('.record-update-cue text')?.textContent).toBe('刷新纪录');
+  });
 });
