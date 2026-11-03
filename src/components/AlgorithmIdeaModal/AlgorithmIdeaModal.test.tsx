@@ -12,15 +12,15 @@ describe('AlgorithmIdeaModal', () => {
   it('should render when isOpen is true', () => {
     render(<AlgorithmIdeaModal isOpen={true} onClose={mockOnClose} />);
     
-    expect(screen.getByText('128. 最长连续序列')).toBeInTheDocument();
-    expect(screen.getByText('问题描述')).toBeInTheDocument();
-    expect(screen.getByText('解题思路')).toBeInTheDocument();
+    expect(screen.getByText('128. 最长连续序列 · 解题思路')).toBeInTheDocument();
+    expect(screen.getByText('算法步骤')).toBeInTheDocument();
+    expect(screen.queryByText('问题描述')).not.toBeInTheDocument();
   });
 
   it('should not render when isOpen is false', () => {
     render(<AlgorithmIdeaModal isOpen={false} onClose={mockOnClose} />);
     
-    expect(screen.queryByText('128. 最长连续序列')).not.toBeInTheDocument();
+    expect(screen.queryByText('128. 最长连续序列 · 解题思路')).not.toBeInTheDocument();
   });
 
   it('should call onClose when close button is clicked', () => {

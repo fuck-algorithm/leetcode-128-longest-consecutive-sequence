@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './Header.css';
 import { getStarCount, GITHUB_REPO_URL } from '../../services/githubService';
+import { ProblemDescriptionModal } from '../ProblemDescriptionModal';
 import { AlgorithmIdeaModal } from '../AlgorithmIdeaModal';
 
 const LEETCODE_URL = 'https://leetcode.cn/problems/longest-consecutive-sequence/';
@@ -9,19 +10,17 @@ const PROBLEM_DESCRIPTION = '给定一个未排序的整数数组 nums，找出�
 
 export function Header() {
   const [starCount, setStarCount] = useState<number>(0);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isProblemDescriptionOpen, setIsProblemDescriptionOpen] = useState(false);
+  const [isAlgorithmIdeaOpen, setIsAlgorithmIdeaOpen] = useState(false);
 
   useEffect(() => {
     getStarCount().then(setStarCount);
   }, []);
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+  const handleOpenProblemDescription = () => setIsProblemDescriptionOpen(true);
+  const handleCloseProblemDescription = () => setIsProblemDescriptionOpen(false);
+  const handleOpenAlgorithmIdea = () => setIsAlgorithmIdeaOpen(true);
+  const handleCloseAlgorithmIdea = () => setIsAlgorithmIdeaOpen(false);
 
   return (
     <header className="header">
@@ -59,12 +58,12 @@ export function Header() {
       <div className="header-actions">
         <button
           className="problem-description-btn"
-          onClick={handleOpenModal}
+          onClick={handleOpenProblemDescription}
           title="查看题目描述"
         >题目描述</button>
         <button
           className="algorithm-idea-btn"
-          onClick={handleOpenModal}
+          onClick={handleOpenAlgorithmIdea}
           title="查看算法思路"
         >
           <svg 
@@ -108,7 +107,12 @@ export function Header() {
           </span>
         </div>
       </div>
-      <AlgorithmIdeaModal isOpen={isModalOpen} onClose={handleCloseModal} description={PROBLEM_DESCRIPTION} />
+      <ProblemDescriptionModal
+        isOpen={isProblemDescriptionOpen}
+        onClose={handleCloseProblemDescription}
+        description={PROBLEM_DESCRIPTION}
+      />
+      <AlgorithmIdeaModal isOpen={isAlgorithmIdeaOpen} onClose={handleCloseAlgorithmIdea} />
     </header>
   );
 }

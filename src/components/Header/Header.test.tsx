@@ -34,10 +34,14 @@ describe('Header', () => {
     expect(screen.getByRole('button', { name: '题目描述' })).toBeInTheDocument();
   });
 
-  it('should open the problem description from the header button', () => {
+  it('opens a dedicated problem description dialog without algorithm content', () => {
     render(<Header />);
     fireEvent.click(screen.getByRole('button', { name: '题目描述' }));
+
+    expect(screen.getByRole('dialog', { name: '128. 最长连续序列' })).toBeInTheDocument();
     expect(screen.getByText(/你必须设计并实现时间复杂度为 O\(n\) 的算法/)).toBeInTheDocument();
+    expect(screen.queryByText('算法步骤')).not.toBeInTheDocument();
+    expect(screen.queryByText('解题思路')).not.toBeInTheDocument();
   });
 
   it('should render algorithm idea button', () => {
@@ -47,20 +51,14 @@ describe('Header', () => {
     expect(button).toBeInTheDocument();
   });
 
-  it('should open modal when algorithm idea button is clicked', async () => {
+  it('opens a dedicated algorithm idea dialog without problem description', () => {
     render(<Header />);
-    
-    // Modal should not be visible initially
+    fireEvent.click(screen.getByRole('button', { name: /算法思路/i }));
+
+    expect(screen.getByText('128. 最长连续序列 · 解题思路')).toBeInTheDocument();
+    expect(screen.getByText('算法步骤')).toBeInTheDocument();
     expect(screen.queryByText('问题描述')).not.toBeInTheDocument();
-    
-    // Click the button
-    const button = screen.getByRole('button', { name: /算法思路/i });
-    fireEvent.click(button);
-    
-    // Modal should now be visible
-    await waitFor(() => {
-      expect(screen.getByText('问题描述')).toBeInTheDocument();
-    });
+    expect(screen.queryByText(/你必须设计并实现时间复杂度为 O\(n\) 的算法/)).not.toBeInTheDocument();
   });
 
   it('should display star count', async () => {
