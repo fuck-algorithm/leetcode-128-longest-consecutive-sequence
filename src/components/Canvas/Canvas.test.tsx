@@ -99,4 +99,21 @@ describe('Canvas', () => {
     expect(container.querySelector('.record-update-cue')?.getAttribute('aria-label')).toContain('更新最长纪录');
     expect(container.querySelector('.record-update-cue text')?.textContent).toBe('刷新纪录');
   });
+
+  it('labels the comparison between the candidate streak and saved record', () => {
+    const step = generateAlgorithmSteps(sampleData[0].data).find(({ description }) => description.startsWith('比较当前长度'))!;
+    const container = renderCanvas(step.visualization, step.description);
+
+    expect(container.querySelector('.record-comparison-cue')?.getAttribute('aria-label')).toContain('当前长度');
+    expect(container.querySelector('.record-comparison-cue text')?.textContent).toBe('当前段 vs 最长纪录');
+  });
+
+  it('labels the rejected candidate without replacing the saved longest sequence', () => {
+    const steps = generateAlgorithmSteps([1, 2, 10]);
+    const step = steps.find(({ description }) => description.startsWith('比较当前长度') && description.endsWith('最长纪录 2'))!;
+    const container = renderCanvas(step.visualization, step.description);
+
+    expect(container.querySelector('.record-comparison-cue text')?.textContent).toBe('当前段 vs 最长纪录');
+    expect(container.querySelector('.record-comparison-cue')?.getAttribute('aria-label')).toContain('小于或等于');
+  });
 });

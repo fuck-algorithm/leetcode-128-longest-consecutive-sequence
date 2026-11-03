@@ -65,6 +65,10 @@ export function getStepNarration(description: string, highlighted: number[], sta
     const [, current = String(state.longestSequence.length), previous = '0'] = description.match(/更新最长序列:\s*(\d+)\s*>\s*(\d+)/) ?? [];
     return { action: `新纪录 ${current}`, message: `当前段比旧纪录 ${previous} 更长；最长连续段现在是 ${state.longestSequence.join(' → ')}。` };
   }
+  if (description.includes('不是序列起点')) {
+    const [, predecessor, current] = description.match(/(-?\d+) 在HashSet中，(-?\d+) 不是序列起点/) ?? [];
+    return { action: `跳过 ${current ?? value}`, message: `前驱 ${predecessor ?? value - 1} 已存在，这个数字不再重复扫描。` };
+  }
   if (description.startsWith('不更新:')) {
     const [, current = String(state.currentSequence.length), best = String(state.longestSequence.length)] = description.match(/不更新:\s*(\d+)\s*<=\s*(\d+)/) ?? [];
     return { action: '纪录不变', message: `当前段长度 ${current} 没有超过最长长度 ${best}，所以保留原答案。` };

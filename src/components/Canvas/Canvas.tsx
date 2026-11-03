@@ -583,6 +583,31 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
         .text(`长度: ${longestSequence.length}`);
     }
 
+    if (stepDescription.startsWith('比较当前长度') && currentSequence.length > 0) {
+      const comparisonMatch = stepDescription.match(/比较当前长度 (\d+) 与最长纪录 (\d+)/);
+      const candidateLength = Number(comparisonMatch?.[1] ?? currentSequence.length);
+      const savedLength = Number(comparisonMatch?.[2] ?? longestSequence.length);
+      const isNewLongest = candidateLength > savedLength;
+      const sourceX = Math.min(sequenceStartX + currentSequence.length * sequenceCellWidth + 12, viewWidth / 2 - 40);
+      const targetX = Math.min(longestSequenceStartX + longestSequence.length * sequenceCellWidth + 12, viewWidth / 2 - 40);
+      const routeX = Math.max(sourceX, targetX) + 24;
+      const labelY = (sequenceY + longestSequenceY) / 2 + 12;
+      const cue = g.append('g')
+        .attr('class', 'record-comparison-cue')
+        .attr('aria-label', `当前长度 ${candidateLength} ${isNewLongest ? '大于' : '小于或等于'} 最长纪录 ${savedLength}`);
+      cue.append('path')
+        .attr('d', `M${sourceX},${sequenceY + 17} C${routeX},${sequenceY + 17} ${routeX},${longestSequenceY + 17} ${targetX},${longestSequenceY + 17}`)
+        .attr('fill', 'none').attr('stroke', isNewLongest ? '#63c49a' : '#d59a54').attr('stroke-width', 2.5)
+        .attr('stroke-dasharray', isNewLongest ? 'none' : '6 4').attr('marker-end', `url(#${isNewLongest ? 'compare-arrow' : 'pointer-arrow'})`);
+      cue.append('rect').attr('x', routeX - 58).attr('y', labelY - 10).attr('width', 116).attr('height', 20).attr('rx', 6)
+        .attr('fill', isNewLongest ? '#17362c' : '#392d1e').attr('stroke', isNewLongest ? '#63c49a' : '#d59a54');
+      cue.append('text').attr('x', routeX).attr('y', labelY + 4).attr('text-anchor', 'middle')
+        .attr('fill', '#f1f4f1').attr('font-size', 9).attr('font-weight', 700).text('当前段 vs 最长纪录');
+      cue.append('text').attr('x', routeX).attr('y', labelY + 23).attr('text-anchor', 'middle')
+        .attr('fill', isNewLongest ? '#9be0bd' : '#f0c48c').attr('font-size', 10).attr('font-weight', 700)
+        .text(`${candidateLength} ${isNewLongest ? '>' : '≤'} ${savedLength}`);
+    }
+
     if (stepDescription.startsWith('更新最长序列:') && currentSequence.length > 0 && longestSequence.length > 0) {
       const labelY = longestSequenceY - 7;
       const label = g.append('g').attr('class', 'record-update-cue').attr('aria-label', `当前连续段 ${currentSequence.join(', ')} 更新最长纪录`);
