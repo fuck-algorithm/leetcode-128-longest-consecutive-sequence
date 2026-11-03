@@ -21,6 +21,10 @@ export function getStepNarration(description: string, highlighted: number[], sta
   if (description.startsWith('遍历HashSet中的数字')) {
     return { action: `检查 ${value}`, message: `先看 ${value - 1} 在不在集合里：没有它，${value} 才是这段连续数的起点。` };
   }
+  if (description.startsWith('跳过 ') && description.includes('不是连续段起点')) {
+    const skipped = description.match(/跳过 (-?\d+)/)?.[1] ?? String(value);
+    return { action: `跳过 ${skipped}`, message: `前驱 ${Number(skipped) - 1} 已存在，这个数字不是新连续段的起点。` };
+  }
   if (description.includes('是一个序列的起点') || description.includes('不是序列起点')) {
     const isStart = description.includes('是一个序列的起点');
     return isStart
@@ -30,8 +34,20 @@ export function getStepNarration(description: string, highlighted: number[], sta
   if (description.startsWith('初始化 currentNum')) {
     return { action: '从起点开始数', message: `当前从 ${value} 开始，先把它记作长度 1 的连续段。` };
   }
+  if (description.startsWith('currentNum 从')) {
+    const [, previous, next] = description.match(/currentNum 从 (-?\d+) 前进到 (-?\d+)/) ?? [];
+    return { action: `指针到 ${next ?? value}`, message: `检查到 ${previous ?? '前一个数字'} 的后继存在，currentNum 前进一格。` };
+  }
+  if (description.startsWith('currentStreak 从')) {
+    const [, previous, next] = description.match(/currentStreak 从 (\d+) 增加到 (\d+)/) ?? [];
+    return { action: `长度 ${next ?? state.currentSequence.length}`, message: `连续段新增一个数字，长度从 ${previous ?? '?'} 增加到 ${next ?? state.currentSequence.length}。` };
+  }
   if (description.startsWith('currentNum =')) {
     return { action: `连续段长 ${state.currentSequence.length}`, message: `找到下一个数字后，当前这段变为 ${state.currentSequence.join(' → ')}。` };
+  }
+  if (description.startsWith('比较当前长度')) {
+    const [, current, best] = description.match(/比较当前长度 (\d+) 与最长纪录 (\d+)/) ?? [];
+    return { action: `${current ?? '?'} ${Number(current) > Number(best) ? '>' : '≤'} ${best ?? '?'}`, message: `将当前连续段长度与已保存的最长长度比较，决定是否刷新纪录。` };
   }
   if (description.includes('是否在HashSet中：是')) {
     const next = value + 1;
@@ -40,6 +56,10 @@ export function getStepNarration(description: string, highlighted: number[], sta
   if (description.includes('是否在HashSet中：否')) {
     const next = value + 1;
     return { action: `停在 ${value}`, message: `集合中没有 ${next}，连续段在 ${value} 结束；现在用这段的长度更新最长纪录。` };
+  }
+  if (description.startsWith('最长长度从')) {
+    const [, previous, next] = description.match(/最长长度从 (\d+) 更新为 (\d+)/) ?? [];
+    return { action: `纪录 ${next ?? state.longestSequence.length}`, message: `最长长度从 ${previous ?? '?'} 改为 ${next ?? state.longestSequence.length}，接着保存对应的连续数字。` };
   }
   if (description.startsWith('更新最长序列:')) {
     const [, current = String(state.longestSequence.length), previous = '0'] = description.match(/更新最长序列:\s*(\d+)\s*>\s*(\d+)/) ?? [];
