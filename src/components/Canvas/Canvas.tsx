@@ -46,7 +46,7 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
   const [transform, setTransform] = useState<Transform>({ x: 0, y: 0, scale: 1 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [canvasSize, setCanvasSize] = useState({ width: 1200, height: 720 });
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const elementBoundsRef = useRef<Map<string, LabelBounds>>(new Map());
   const prevVisualizationRef = useRef<VisualizationState | null>(null);
 
@@ -118,11 +118,10 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
 
   // D3可视化渲染
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || canvasSize.width <= 0 || canvasSize.height <= 0) return;
 
     const svg = d3.select(svgRef.current);
-    const width = canvasSize.width || svgRef.current.clientWidth;
-    const height = canvasSize.height || svgRef.current.clientHeight;
+    const { width, height } = canvasSize;
     const scale = Math.min(width / 1200, height / 720);
     const canvasScale = 1 / scale;
     const viewWidth = width / scale;
@@ -183,6 +182,7 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
     const { cellSize, fontSize, showAllLabels, spacing } = renderConfig;
     const layout = getCanvasLayout(viewWidth, viewHeight, originalArray.length, hashSetNumbers.length, cellSize, currentSequence.length, longestSequence.length);
     const { arrayY, hashSetY, sequenceY, longestSequenceY, legendY, cellWidth, arrayStartX, hashSetStartX, hashSetCellSize, hashSetColumns, sequenceCellWidth, sequenceStartX, longestSequenceStartX, membershipY } = layout;
+    const hashSetCols = hashSetColumns;
     svg.attr('viewBox', `${-viewWidth / 2} ${-viewHeight / 2} ${viewWidth} ${viewHeight}`);
     const g = svg.append('g')
       .attr('transform', `translate(${transform.x}, ${transform.y}) scale(${canvasScale * transform.scale})`);
@@ -284,7 +284,6 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
     });
 
     // ==================== 绘制HashSet ====================
-    const hashSetCols = hashSetColumns;
 
     // HashSet标题
     g.append('text')
