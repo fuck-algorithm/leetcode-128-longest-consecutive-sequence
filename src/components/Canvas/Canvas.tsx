@@ -413,18 +413,26 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
             .attr('fill', '#f1f4f1').attr('font-size', 9).attr('font-weight', 700).text(label);
         }
       } else if (currentPoint) {
-        const label = `${membershipCue.direction === 'predecessor' ? '检查前驱' : '查找后继'} ${membershipCue.value}`;
-        const labelWidth = label.length * 10 + 20;
-        const labelX = Math.min(currentPoint.x + hashSetCellSize * 1.1, viewWidth / 2 - labelWidth / 2 - 12);
-        const labelY = currentPoint.y - hashSetCellSize * .7;
-        const cue = g.append('g').attr('class', 'membership-relationship').attr('aria-label', label);
-        cue.append('line').attr('x1', currentPoint.x + hashSetCellSize * .38).attr('y1', currentPoint.y - 2)
-          .attr('x2', labelX - labelWidth / 2 + 4).attr('y2', labelY).attr('stroke', '#d59a54')
-          .attr('stroke-width', 3).attr('stroke-dasharray', '7 5').attr('marker-end', 'url(#pointer-arrow)');
-        cue.append('rect').attr('x', labelX - labelWidth / 2).attr('y', labelY - 15).attr('width', labelWidth).attr('height', 22)
-          .attr('rx', 5).attr('fill', '#392d1e').attr('stroke', '#d59a54').attr('stroke-width', 1.5);
-        cue.append('text').attr('x', labelX).attr('y', labelY).attr('text-anchor', 'middle').attr('fill', '#f1f4f1')
-          .attr('font-size', 10).attr('font-weight', 700).text(label);
+        const label = `缺少 ${membershipCue.value}`;
+        const ghostWidth = Math.max(48, label.length * 9 + 14);
+        const ghostHeight = 24;
+        const ghostCenterY = membershipY;
+        const ghostTop = ghostCenterY - ghostHeight / 2;
+        const sourceY = currentPoint.y + hashSetCellSize * .38;
+        const cue = g.append('g')
+          .attr('class', 'missing-membership-cue')
+          .attr('aria-label', `${membershipCue.direction === 'predecessor' ? '前驱' : '后继'} ${membershipCue.value} 缺失`);
+        cue.append('path')
+          .attr('d', `M${currentPoint.x},${sourceY} L${currentPoint.x},${ghostTop - 3}`)
+          .attr('fill', 'none').attr('stroke', '#d59a54').attr('stroke-width', 3)
+          .attr('stroke-dasharray', '7 5').attr('marker-end', 'url(#pointer-arrow)');
+        cue.append('rect')
+          .attr('x', currentPoint.x - ghostWidth / 2).attr('y', ghostTop)
+          .attr('width', ghostWidth).attr('height', ghostHeight).attr('rx', 5)
+          .attr('fill', '#392d1e').attr('stroke', '#d59a54').attr('stroke-width', 1.5)
+          .attr('stroke-dasharray', '5 3');
+        cue.append('text').attr('x', currentPoint.x).attr('y', ghostCenterY + 4).attr('text-anchor', 'middle')
+          .attr('fill', '#f1f4f1').attr('font-size', 9).attr('font-weight', 700).text(label);
       }
     }
 
