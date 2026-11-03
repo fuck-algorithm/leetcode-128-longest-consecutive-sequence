@@ -76,7 +76,7 @@ describe('getStepNarration', () => {
     });
   });
 
-  it('never falls back to raw implementation prose for any displayed sample step', () => {
+  it('provides a readable explanation for every displayed sample step', () => {
     for (const sample of sampleData) {
       for (const step of generateAlgorithmSteps(sample.data)) {
         const { action, message } = getStepNarration(step.description, step.visualization.highlightedNumbers || [], step.visualization);

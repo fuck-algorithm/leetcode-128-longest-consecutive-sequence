@@ -16,6 +16,7 @@ export interface CanvasLayout {
   longestSequenceY: number;
   longestSequenceStartX: number;
   legendY: number;
+  membershipY: number;
 }
 
 export function getCanvasLayout(
@@ -41,10 +42,11 @@ export function getCanvasLayout(
   const sequenceHeight = sequenceLength > 1 ? 76 : 0;
   const longestHeight = longestLength > 0 ? 76 : 0;
   const legendHeight = 24;
-  const gaps = [24, 28, 24, 20];
+  const gaps = [24, 68, 24, 20];
   const blocks = [arrayHeight, 38 + hashHeight, sequenceHeight, longestHeight, legendHeight].filter((height) => height > 0);
   const usedGaps = gaps.slice(0, blocks.length - 1).reduce((sum, gap) => sum + gap, 0);
-  const contentHeight = blocks.reduce((sum, height) => sum + height, 0) + usedGaps;
+  const membershipLaneHeight = 40;
+  const contentHeight = blocks.reduce((sum, height) => sum + height, 0) + usedGaps + membershipLaneHeight;
   const viewHeight = Math.max(viewportHeight, contentHeight + 180, 520);
   let cursor = -contentHeight / 2 - 30;
   const arrayY = cursor;
@@ -56,6 +58,7 @@ export function getCanvasLayout(
   const longestSequenceY = cursor + 24;
   cursor += longestHeight + gaps[3];
   const legendY = cursor - 12;
+  const membershipY = hashSetY + hashHeight + membershipLaneHeight / 2 + 6;
 
   return {
     viewWidth,
@@ -73,6 +76,7 @@ export function getCanvasLayout(
     longestSequenceY,
     longestSequenceStartX: -longestLength * sequenceCellWidth / 2,
     legendY,
+    membershipY,
   };
 }
 
