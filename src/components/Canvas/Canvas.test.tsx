@@ -116,4 +116,22 @@ describe('Canvas', () => {
     expect(container.querySelector('.record-comparison-cue text')?.textContent).toBe('当前段 vs 最长纪录');
     expect(container.querySelector('.record-comparison-cue')?.getAttribute('aria-label')).toContain('小于或等于');
   });
+
+  it('labels each current-sequence arrow as a consecutive +1 link', () => {
+    const step = generateAlgorithmSteps(sampleData[0].data).find(({ description }) => description === 'currentStreak 从 2 增加到 3')!;
+    const container = renderCanvas(step.visualization, step.description);
+
+    expect(container.querySelectorAll('.current-sequence-edge-label')).toHaveLength(2);
+    expect(container.querySelector('.current-sequence-edge-label')?.textContent).toBe('+1');
+    expect(container.querySelector('.current-sequence-edge-label')?.getAttribute('aria-label')).toContain('连续后继');
+  });
+
+  it('labels each longest-sequence arrow as a consecutive +1 link', () => {
+    const step = generateAlgorithmSteps(sampleData[0].data).filter(({ description }) => description.startsWith('更新最长序列:')).pop()!;
+    const container = renderCanvas(step.visualization, step.description);
+
+    expect(container.querySelectorAll('.longest-sequence-edge-label')).toHaveLength(step.visualization.longestSequence.length - 1);
+    expect(container.querySelector('.longest-sequence-edge-label')?.textContent).toBe('+1');
+    expect(container.querySelector('.longest-sequence-edge-label')?.getAttribute('aria-label')).toContain('最长段连续后继');
+  });
 });

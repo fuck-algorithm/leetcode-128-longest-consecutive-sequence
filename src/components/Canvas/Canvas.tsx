@@ -499,7 +499,13 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
           const arrowStartX = x + seqCellWidth - 13;
           const arrowEndX = x + seqCellWidth + 3;
           const arrowY = seqY + 17;
-          g.append('line').attr('x1', arrowStartX).attr('y1', arrowY).attr('x2', arrowEndX).attr('y2', arrowY).attr('stroke', '#4299e1').attr('stroke-width', 2).attr('marker-end', 'url(#flow-arrow)');
+          const relation = g.append('g')
+            .attr('class', 'current-sequence-edge-label')
+            .attr('aria-label', `${num} 的连续后继是 ${currentSequence[i + 1]}`);
+          relation.append('line').attr('x1', arrowStartX).attr('y1', arrowY).attr('x2', arrowEndX).attr('y2', arrowY)
+            .attr('stroke', '#4299e1').attr('stroke-width', 2).attr('marker-end', 'url(#flow-arrow)');
+          relation.append('text').attr('x', (arrowStartX + arrowEndX) / 2).attr('y', seqY + 4)
+            .attr('text-anchor', 'middle').attr('fill', '#9ed5f4').attr('font-size', 8).attr('font-weight', 700).text('+1');
         }
       });
 
@@ -561,7 +567,10 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
           const arrowEndX = x + seqCellWidth + 3;
           const arrowY = longestSeqY + 17;
 
-          g.append('line')
+          const relation = g.append('g')
+            .attr('class', 'longest-sequence-edge-label')
+            .attr('aria-label', `${num} 的最长段连续后继是 ${longestSequence[i + 1]}`);
+          relation.append('line')
             .attr('x1', arrowStartX)
             .attr('y1', arrowY)
             .attr('x2', arrowEndX)
@@ -569,6 +578,14 @@ export function Canvas({ visualization, stepDescription, showCode, showContext, 
             .attr('stroke', '#38a169')
             .attr('stroke-width', 2)
             .attr('marker-end', 'url(#compare-arrow)');
+          relation.append('text')
+            .attr('x', (arrowStartX + arrowEndX) / 2)
+            .attr('y', longestSeqY + 4)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#a7e2b2')
+            .attr('font-size', 8)
+            .attr('font-weight', 700)
+            .text('+1');
         }
       });
 
